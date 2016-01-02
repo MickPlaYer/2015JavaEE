@@ -1,0 +1,25 @@
+sptingmvc.xml
+	<context:component-scan base-package="*"/> 
+
+CREATE TABLE Fee
+(
+  id INT IDENTITY(1,1) PRIMARY KEY,
+  name varchar(50),
+  count INT
+)
+
+http://www.hipenpal.com/tool/characters_to_unicode_converter_in_traditional_chinese.php
+
+Servers/context.xml
+<Context>
+	<Resource name="datasource/helloDS54"
+		auth="Container"
+		type="javax.sql.DataSource"
+		driverClassName="com.microsoft.sqlserver.jdbc.SQLServerDriver"
+		url="jdbc:sqlserver://db.csie.ntut.edu.tw:2819;databaseName=Java54"
+		username="sql54"
+		password="s1234"
+		maxActive="20"
+		maxIdle="10"
+		maxWait="10000"/>
+</Context>

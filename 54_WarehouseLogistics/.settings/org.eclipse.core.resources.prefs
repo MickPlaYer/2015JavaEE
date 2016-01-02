@@ -1,0 +1,13 @@
+eclipse.preferences.version=1
+encoding//WebContent/spring/account/loginSuccess.jsp=UTF-8
+encoding//WebContent/spring/account/register.jsp=UTF-8
+encoding//WebContent/spring/account/registerSuccess.jsp=UTF-8
+encoding//WebContent/spring/box/addItem.jsp=UTF-8
+encoding//WebContent/spring/box/removeItem.jsp=UTF-8
+encoding//WebContent/spring/box/removeItemFinished.jsp=UTF-8
+encoding//WebContent/spring/main/buyBox.jsp=UTF-8
+encoding//WebContent/spring/main/logistics.jsp=UTF-8
+encoding//WebContent/spring/main/main.jsp=UTF-8
+encoding//WebContent/spring/main/myAccount.jsp=UTF-8
+encoding//WebContent/spring/main/myBox.jsp=UTF-8
+encoding//WebContent/spring/main/myBoxItem.jsp=UTF-8

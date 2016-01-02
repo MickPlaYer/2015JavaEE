@@ -1,0 +1,5 @@
+﻿homeURL不該寫在多國語言字典檔裡
+	=>需要改三份
+資料庫有字串長度限制但並無針對這項錯誤做處理
+沒有任何人會丟出NullListException卻有人(ListController)得處理這項Exception
+	=>修改JDBCFee.java 的  list() 使其丟出

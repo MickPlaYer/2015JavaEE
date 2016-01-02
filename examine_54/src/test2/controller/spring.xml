@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
+
+	<bean id="DataSource" class="java.lang.String">
+		<constructor-arg type="String" value="java:comp/env/datasource/helloDS54"/> 
+    </bean>
+	
+	<bean id="NiceDatabase" class="test2.service.database.NiceJDBC" scope="prototype"/>
+	
+	<bean id="Message" class="test2.service.message.ThankMessage" scope="prototype"/>
+	
+	<bean id="Mail" class="test2.service.mail.GoogleMail" scope="prototype"/>
+	
+	<bean id="LIKE_PAGE" class="java.lang.String">
+		<constructor-arg type="String" value="spring/test2/like"/>
+    </bean>
+
+	<bean id="LIKE_SUCCESS_PAGE" class="java.lang.String">
+		<constructor-arg type="String" value="spring/test2/niceCard"/>
+    </bean>
+
+	<bean id="LIST_PAGE" class="java.lang.String">
+		<constructor-arg type="String" value="spring/test2/list"/>
+    </bean>
+    
+    <bean id="HOW_NICE_PAGE" class="java.lang.String">
+		<constructor-arg type="String" value="spring/test2/howNice"/>
+    </bean>
+
+	<bean id="HOW_NICE_SUCCESS_PAGE" class="java.lang.String">
+		<constructor-arg type="String" value="spring/test2/niceCard"/>
+    </bean>
+    
+    <bean id="THANK_PAGE" class="java.lang.String">
+		<constructor-arg type="String" value="spring/test2/thank"/>
+    </bean>
+
+	<bean id="THANK_SUCCESS_PAGE" class="java.lang.String">
+		<constructor-arg type="String" value="spring/test2/thankCard"/>
+    </bean>
+
+    <bean id="ERROR_PAGE" class="java.lang.String">
+		<constructor-arg type="String" value="spring/test2/error"/>
+    </bean>
+</beans>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
+
+	<bean id="HibernateConfig" class="java.lang.String">
+		<constructor-arg type="String" value="examine/service/database/hibernate-config.xml"/> 
+    </bean>
+	
+	<bean id="Database" class="examine.service.database.HibernateDatabase" scope="prototype"/>
+	
+	<bean id="queryAccountPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/examine/queryAccount"/>
+    </bean>
+	<bean id="myAccountPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/examine/myAccount"/>
+    </bean>
+    
+    <bean id="queryCarsPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/examine/queryCars"/>
+    </bean>
+	<bean id="myCarsPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/examine/myCars"/>
+    </bean>
+    
+    <bean id="sellCarPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/examine/sellCar"/>
+    </bean>
+	<bean id="sellCarSuccessPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/examine/myCars"/>
+    </bean>
+
+    <bean id="buyCarPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/examine/buyCar"/>
+    </bean>
+	<bean id="buyCarSuccessPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/examine/myCars"/>
+    </bean>
+
+	<bean id="ownerListPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/examine/ownerList"/>
+    </bean>
+
+	<bean id="carListPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/examine/carList"/>
+    </bean>
+
+    <bean id="errorPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/examine/error"/>
+    </bean>
+</beans>

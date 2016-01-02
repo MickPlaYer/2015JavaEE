@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
+
+	<bean id="DataSource" class="java.lang.String">
+		<constructor-arg type="String" value="java:comp/env/datasource/helloDS54"/> 
+    </bean>
+	
+	<bean id="CarDatabase" class="test1.service.database.CarJDBC" scope="prototype"/>
+	
+	<bean id="Message" class="test1.service.message.ThankMessage" scope="prototype"/>
+	
+	<bean id="Mail" class="test1.service.mail.GoogleMail" scope="prototype"/>
+	
+	<bean id="ADD_PAGE" class="java.lang.String">
+		<constructor-arg type="String" value="spring/test1/add"/>
+    </bean>
+
+	<bean id="ADD_SUCCESS_PAGE" class="java.lang.String">
+		<constructor-arg type="String" value="spring/test1/queryCar"/>
+    </bean>
+
+	<bean id="LIST_PAGE" class="java.lang.String">
+		<constructor-arg type="String" value="spring/test1/list"/>
+    </bean>
+    
+    <bean id="QUERY_PAGE" class="java.lang.String">
+		<constructor-arg type="String" value="spring/test1/query"/>
+    </bean>
+
+	<bean id="QUERY_SUCCESS_PAGE" class="java.lang.String">
+		<constructor-arg type="String" value="spring/test1/queryCar"/>
+    </bean>
+    
+    <bean id="SELL_PAGE" class="java.lang.String">
+		<constructor-arg type="String" value="spring/test1/sell"/>
+    </bean>
+
+	<bean id="SELL_SUCCESS_PAGE" class="java.lang.String">
+		<constructor-arg type="String" value="spring/test1/sellCar"/>
+    </bean>
+
+    <bean id="ERROR_PAGE" class="java.lang.String">
+		<constructor-arg type="String" value="spring/test1/error"/>
+    </bean>
+</beans>

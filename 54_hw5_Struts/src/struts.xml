@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+	<constant name="struts.action.excludePattern" value=".*html" />
+	<constant name="struts.devMode" value="true"/>
+	<constant name="struts.i18n.reload" value="true"/>
+	<constant name="struts.configuration.xml.reload" value="true"/>
+	<constant name="struts.xslt.nocache" value="true"/>
+	
+	<constant name="struts.custom.i18n.resources" value="resources.MessageDictionary" />
+	
+	<package name="05_Struts" extends="struts-default">
+	
+	
+	<action name="doHello" class="action.struts.HelloAction" method="doHello">
+		<result name="success" type="velocity">struts/message.jsp</result>
+	</action>
+	
+	<action name="doHello" class="action.exception.HelloAction" method="doHello">
+		<result name="success" type="velocity">struts/message.jsp</result>
+		<result name="input" type="velocity">struts/error.jsp</result>
+	</action>
+	
+	<action name="doHello" class="action.spring.HelloAction" method="doHello">
+		<result name="success" type="velocity">struts/message.jsp</result>
+		<result name="input" type="velocity">struts/error.jsp</result>
+	</action>
+	
+	<action name="doHello" class="action.intl.HelloAction" method="doHello">
+		<result name="success" type="velocity">struts/intlmessage.jsp</result>
+		<result name="input" type="velocity">struts/intlerror.jsp</result>
+	</action>
+	
+	<action name="doHelloCSS" class="action.intl.HelloAction" method="doHello">
+		<result name="success" type="velocity">struts/intlmessagecss.jsp</result>
+		<result name="input" type="velocity">struts/intlerrorcss.jsp</result>
+	</action>
+	
+	<action name="hello">
+		<result type="velocity">struts/intlhello.jsp</result>
+	</action>
+	
+	<action name="helloCSS">
+		<result type="velocity">struts/intlhellocss.jsp</result>
+	</action>
+	
+	<action name="pickCar" class="action.car.struts.PickCarAction" method="pickCar">
+		<result name="success" type="velocity">car/struts/carrace.jsp</result>
+	</action>
+	
+	</package>
+</struts>

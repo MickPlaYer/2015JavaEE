@@ -1,0 +1,29 @@
+.body {
+	margin-top: 30px;
+	text-align: center;
+}
+
+.title {
+	font-size: 25px;
+}
+
+.topicTable {
+	margin: auto;
+}
+
+.navTable {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.content {
+	font-size: 20px;
+}
+
+.message {
+	font-size: 12px;
+}
+
+.inputBox {
+	width: 155px;
+}

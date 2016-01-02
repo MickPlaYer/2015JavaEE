@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE beans PUBLIC "-//SPRING/DTD BEAN/EN" 
+  "http://www.springframework.org/dtd/spring-beans.dtd"> 
+<beans>
+
+  <bean id="message" class="service.message.HelloMessage" />
+	<!-- <bean id="message" class="service.message.HiMessage" /> -->
+	<!-- <bean id="message" class="service.message.AlohaMessage" />  -->
+
+	<bean id="googleMail" class="service.mail.GoogleMail" />
+	
+	<bean id="messageModel" class="spring.viewmodel.MessageModel" />
+	
+	<bean id="HELLO_PAGE" class="java.lang.String">
+		<constructor-arg type="String" value="spring/hello"/>
+    	<!-- <constructor-arg type="String" value="spring/intl/intlhello"/> -->
+    	<!-- <constructor-arg type="String" value="spring/intl/css/intlhellocss"/> -->
+    </bean>
+    
+    <bean id="SUCCESS_PAGE" class="java.lang.String">
+    	<constructor-arg type="String" value="spring/message"/>
+    	<!-- <constructor-arg type="String" value="spring/intl/intlmessage"/> -->
+    	<!-- <constructor-arg type="String" value="spring/intl/css/intlmessagecss"/> -->
+    </bean>
+    
+    <bean id="ERROR_PAGE" class="java.lang.String">
+    	<constructor-arg type="String" value="spring/error"/>
+    	<!-- <constructor-arg type="String" value="spring/intl/intlerror"/> -->
+    	<!-- <constructor-arg type="String" value="spring/intl/css/intlerrorcss"/> -->
+    </bean>
+    
+</beans>

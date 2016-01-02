@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
+
+	<bean id="DataSource" class="java.lang.String">
+		<constructor-arg type="String" value="java:comp/env/datasource/helloDS54"/> 
+    </bean>
+
+	<bean id="message" class="service.message.HelloMessage" />
+	<!-- <bean id="message" class="service.message.HiMessage" /> -->
+	<!-- <bean id="message" class="service.message.AlohaMessage" /> -->
+
+	<bean id="mail" class="service.mail.GoogleMail" />
+	
+	<bean id="fee" class="service.fee.JDBCFee" scope="prototype"/>
+
+	<bean id="messageModel" class="viewmodel.MessageModel"/>
+	
+	<bean id="feeModel" class="model.FeeModel"/>
+
+	<bean id="HELLO_PAGE" class="java.lang.String">
+		<constructor-arg type="String" value="spring/database/hello"/>
+    </bean>
+
+    <bean id="SUCCESS_PAGE" class="java.lang.String">
+		<constructor-arg type="String" value="spring/database/messageFee"/>
+    </bean>
+
+    <bean id="QUERY_PAGE" class="java.lang.String">
+		<constructor-arg type="String" value="spring/database/query"/>
+    </bean>
+
+    <bean id="QUERY_SUCCESS_PAGE" class="java.lang.String">
+		<constructor-arg type="String" value="spring/database/queryFee"/>
+    </bean>
+
+    <bean id="PAY_PAGE" class="java.lang.String">
+		<constructor-arg type="String" value="spring/database/pay"/>
+    </bean>
+
+    <bean id="PAY_SUCCESS_PAGE" class="java.lang.String">
+		<constructor-arg type="String" value="spring/database/payFee"/>
+    </bean>
+
+    <bean id="QUIT_PAGE" class="java.lang.String">
+		<constructor-arg type="String" value="spring/database/quit"/>
+    </bean>
+
+    <bean id="QUIT_SUCCESS_PAGE" class="java.lang.String">
+		<constructor-arg type="String" value="spring/database/quitFee"/> 
+    </bean>
+
+    <bean id="LIST_PAGE" class="java.lang.String">
+		<constructor-arg type="String" value="spring/database/listFee"/>
+    </bean>
+
+    <bean id="ERROR_PAGE" class="java.lang.String">
+		<constructor-arg type="String" value="spring/database/error"/>
+    </bean>
+</beans>

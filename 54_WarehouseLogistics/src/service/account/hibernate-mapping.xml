@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping.dtd">
+	
+<hibernate-mapping>
+	<class name="model.AccountModel" table="Account">
+		<id name="id" column="id" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="name" column="name" type="string" not-null="true" length="50"/>
+		<property name="password" column="password" type="string" not-null="true" length="32"/>
+		<property name="token" column="token" type="string" length="32"/>
+		<property name="session" column="session" type="string" length="32"/>
+	</class>
+	
+	<class name="model.BoxModel" table="Box">
+		<id name="id" column="id" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="owner" column="owner" type="integer" not-null="true" length="50"/>
+		<property name="name" column="name" type="string" not-null="true" length="50"/>
+		<property name="location" column="location" type="string" not-null="true" length="50"/>
+		<property name="deadline" column="deadline" type="date"/>
+	</class>
+	
+	<class name="model.ItemModel" table="Item">
+		<id name="id" column="id" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="name" column="name" type="string" not-null="true" length="50"/>
+	</class>
+	
+	<class name="model.ItemAmountModel" table="Item">
+		<id name="id" column="id" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="name" column="name" type="string" not-null="true" length="50"/>
+		<property name="amount" column="amount" type="integer" not-null="true" length="50"/>
+	</class>
+	
+	<class name="model.ItemBoxModel" table="Item_in_box">
+		<id name="id" column="id" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="boxId" column="bid" type="integer" not-null="true" length="50"/>
+		<property name="itemId" column="iid" type="integer" not-null="true" length="50"/>
+		<property name="amount" column="amount" type="integer" not-null="true" length="50"/>
+	</class>
+	
+</hibernate-mapping>

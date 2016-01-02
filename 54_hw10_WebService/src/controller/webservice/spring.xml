@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
+
+	<bean id="HELLO" class="java.lang.String">
+		<constructor-arg type="String" value="spring/webservice/hello"/>
+		<!-- <constructor-arg type="String" value="spring/webservice/intl/intlhello"/> -->
+		<!-- <constructor-arg type="String" value="spring/webservice/intl/css/intlhellocss"/> -->
+    </bean>
+
+    <bean id="helloSUCCESS" class="java.lang.String">
+		<constructor-arg type="String" value="spring/webservice/messageFee"/>
+		<!-- <constructor-arg type="String" value="spring/webservice/intl/intlmessageFee"/> -->
+		<!-- <constructor-arg type="String" value="spring/webservice/intl/css/intlmessageFeecss"/> -->
+    </bean>
+
+    <bean id="QUERY" class="java.lang.String">
+		<constructor-arg type="String" value="spring/webservice/query"/>
+		<!-- <constructor-arg type="String" value="spring/webservice/intl/intlquery"/> -->
+		<!-- <constructor-arg type="String" value="spring/webservice/intl/css/intlquerycss"/> -->
+    </bean>
+
+    <bean id="querySUCCESS" class="java.lang.String">
+		<constructor-arg type="String" value="spring/webservice/queryFee"/>
+		<!-- <constructor-arg type="String" value="spring/webservice/intl/intlqueryFee"/> -->
+		<!-- <constructor-arg type="String" value="spring/webservice/intl/css/intlqueryFeecss"/> -->
+    </bean>
+
+    <bean id="PAY" class="java.lang.String">
+		<constructor-arg type="String" value="spring/webservice/pay"/>
+		<!-- <constructor-arg type="String" value="spring/webservice/intl/intlpay"/> -->
+		<!-- <constructor-arg type="String" value="spring/webservice/intl/css/intlpaycss"/> -->
+    </bean>
+
+    <bean id="paySUCCESS" class="java.lang.String">
+		<constructor-arg type="String" value="spring/webservice/payFee"/>
+		<!-- <constructor-arg type="String" value="spring/webservice/intl/intlpayFee"/> -->
+		<!-- <constructor-arg type="String" value="spring/webservice/intl/css/intlpayFeecss"/> -->
+    </bean>
+
+    <bean id="QUIT" class="java.lang.String">
+		<constructor-arg type="String" value="spring/webservice/quit"/>
+		<!-- <constructor-arg type="String" value="spring/webservice/intl/intlquit"/> -->
+		<!-- <constructor-arg type="String" value="spring/webservice/intl/css/intlquitcss"/> -->
+    </bean>
+
+    <bean id="quitSUCCESS" class="java.lang.String">
+		<constructor-arg type="String" value="spring/webservice/quitFee"/>
+		<!-- <constructor-arg type="String" value="spring/webservice/intl/intlquitFee"/> -->
+		<!-- <constructor-arg type="String" value="spring/webservice/intl/css/intlquitFeecss"/> -->   
+    </bean>
+
+    <bean id="listSUCCESS" class="java.lang.String">
+		<constructor-arg type="String" value="spring/webservice/listFee"/>
+		<!-- <constructor-arg type="String" value="spring/webservice/intl/intllistFee"/> --> 
+   		<!-- <constructor-arg type="String" value="spring/webservice/intl/css/intllistFeecss"/> -->
+    </bean>
+
+    <bean id="ERROR" class="java.lang.String">
+		<constructor-arg type="String" value="spring/webservice/error"/>
+		<!-- <constructor-arg type="String" value="spring/webservice/intl/intlerror"/> -->
+		<!-- <constructor-arg type="String" value="spring/webservice/intl/css/intlerrorcss"/> -->
+    </bean>
+    
+    <bean id="messageProviderModel" class="viewmodel.MessageProviderModel" />
+	<bean id="messageModel" class="viewmodel.MessageModel" />
+	<bean id="feeListProviderModel" class="viewmodel.FeeListProviderModel" />
+	<bean id="feeProviderModel" class="viewmodel.FeeProviderModel" />
+	
+	<bean id="feeModel" class="model.FeeModel" scope="prototype" />
+    
+    <bean id="message_service" class="java.lang.String">
+		<!-- <constructor-arg type="String" value="http://localhost:8080/54_hw10_WebService/spring/webservice/message/doHello" /> -->
+		<!-- <constructor-arg type="String" value="http://ilab.csie.ntut.edu.tw:8080/00_hw10_WebService/spring/webservice/message/doHello" /> -->
+		<constructor-arg type="String" value="http://ilab.csie.ntut.edu.tw:8080/01_hw10_WebService/spring/webservice/message/doHello" />
+		<!-- <constructor-arg type="String" value="http://ilab.csie.ntut.edu.tw:8080/02_hw10_WebService/spring/webservice/message/doHello" /> -->
+		<!-- <constructor-arg type="String" value="http://ilab.csie.ntut.edu.tw:8080/03_hw10_WebService/spring/webservice/message/doHello" /> -->
+	</bean>
+
+	<bean id="mail_service" class="java.lang.String">
+		<!-- <constructor-arg type="String" value="http://localhost:8080/54_hw10_WebService/spring/webservice/mail/sendMail" /> -->
+		<!-- <constructor-arg type="String" value="http://ilab.csie.ntut.edu.tw:8080/00_hw10_WebService/spring/webservice/mail/sendMail" /> -->
+		<!-- <constructor-arg type="String" value="http://ilab.csie.ntut.edu.tw:8080/01_hw10_WebService/spring/webservice/mail/sendMail" /> -->
+		<constructor-arg type="String" value="http://ilab.csie.ntut.edu.tw:8080/02_hw10_WebService/spring/webservice/mail/sendMail" />
+		<!-- <constructor-arg type="String" value="http://ilab.csie.ntut.edu.tw:8080/03_hw10_WebService/spring/webservice/mail/sendMail" /> -->
+	</bean>
+	
+	<bean id="fee_service" class="java.lang.String">
+		<!-- <constructor-arg type="String" value="http://localhost:8080/54_hw10_WebService/spring/webservice/fee" /> -->
+		<!-- <constructor-arg type="String" value="http://ilab.csie.ntut.edu.tw:8080/00_hw10_WebService/spring/webservice/fee" /> -->
+		<!-- <constructor-arg type="String" value="http://ilab.csie.ntut.edu.tw:8080/01_hw10_WebService/spring/webservice/fee" /> -->
+		<!-- <constructor-arg type="String" value="http://ilab.csie.ntut.edu.tw:8080/02_hw10_WebService/spring/webservice/fee" /> -->
+		<constructor-arg type="String" value="http://ilab.csie.ntut.edu.tw:8080/03_hw10_WebService/spring/webservice/fee" />
+	</bean>
+
+</beans>

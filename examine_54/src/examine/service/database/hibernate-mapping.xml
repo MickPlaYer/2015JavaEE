@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping.dtd">
+	
+<hibernate-mapping>
+	<class name="examine.model.OwnerModel" table="Owner">
+		<id name="id" column="id" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="name" column="name" type="string" not-null="true" length="50"/>
+		<property name="email" column="email" type="string" not-null="true" length="50"/>
+		<property name="cash" column="cash" type="integer" not-null="true" length="10"/>
+	</class>
+	<class name="examine.model.CarModel" table="Car">
+		<id name="id" column="id" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="name" column="name" type="string" not-null="true" length="50"/>
+		<property name="price" column="price" type="integer" not-null="true" length="10"/>
+		<property name="ownerId" column="ownerId" type="integer" not-null="true" length="10"/>
+	</class>
+</hibernate-mapping>

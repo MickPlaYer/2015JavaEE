@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+	"-//Hibernate/Hibernate Configuration DTD//EN"
+	"http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+	
+<hibernate-configuration>
+	<session-factory>
+		<property name="dialect">org.hibernate.dialect.SQLServerDialect</property>
+		<property name="hibernate.connection.datasource">java:comp/env/datasource/helloDS54</property>
+		<property name="hibernate.show_sql">true</property>
+		<property name="hibernate.tracnsaction.factory_class">org.hibernate.tracnsaction.JDBCTracnsactionFactory</property>
+		<mapping resource="service/fee/feehibernate-mapping.xml"/>
+	</session-factory>
+</hibernate-configuration>

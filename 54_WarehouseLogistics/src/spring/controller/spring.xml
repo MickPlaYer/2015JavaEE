@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
+	
+	<bean id="registerPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/account/register"/>
+    </bean>
+    
+    <bean id="registerSuccessPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/account/registerSuccess"/>
+    </bean>
+    
+    <bean id="loginSuccessPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/account/loginSuccess"/>
+    </bean>
+
+    <bean id="mainPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/main/main"/>
+    </bean>
+    
+    <bean id="myAccountPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/main/myAccount"/>
+    </bean>
+    
+    <bean id="myBoxPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/main/myBox"/>
+    </bean>
+    
+    <bean id="logisticsPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/main/logistics"/>
+    </bean>
+    
+    <bean id="buyBoxPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/main/buyBox"/>
+    </bean>
+
+    <bean id="myBoxItemPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/main/myBoxItem"/>
+    </bean>
+
+    <bean id="addItemPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/box/addItem"/>
+    </bean>
+    
+    <bean id="addItemSuccess" class="java.lang.String">
+		<constructor-arg type="String" value="spring/box/"/>
+    </bean>
+
+    <bean id="removeItemPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/box/removeItem"/>
+    </bean>
+
+    <bean id="removeItemSuccess" class="java.lang.String">
+		<constructor-arg type="String" value="spring/box/"/>
+    </bean>
+
+    <bean id="errorPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/error"/>
+    </bean>
+    
+    <bean id="mainErrorPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/main/error"/>
+    </bean>
+    
+    <bean id="boxErrorPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/box/error"/>
+    </bean>
+</beans>

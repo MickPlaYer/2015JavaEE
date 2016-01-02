@@ -1,0 +1,69 @@
+﻿123
+54倉儲物流
+
+Account(id, name, password, token, session)
+Box(id, name, location, owner)
+Item(id, name)
+Item_in_box(iid, bid, amount)
+
+CREATE TABLE Account
+(
+  id INT IDENTITY(1,1) PRIMARY KEY,
+  name varchar(50) NOT NULL,
+  password varchar(32) NOT NULL,
+  token varchar(32) DEFAULT NULL,
+  session varchar(32) DEFAULT NULL
+)
+
+CREATE TABLE Box
+(
+  id INT IDENTITY(1,1) PRIMARY KEY,
+  owner INT REFERENCES Account (id) NOT NULL,
+  name varchar(50) NOT NULL,
+  location varchar(50) NOT NULL,
+  deadline datetime
+)
+
+CREATE TABLE Item
+(
+  id INT IDENTITY(1,1) PRIMARY KEY,
+  name varchar(50) NOT NULL
+)
+
+CREATE TABLE Item_in_box
+(
+  id INT IDENTITY(1,1) PRIMARY KEY,
+  iid INT REFERENCES Item (id) NOT NULL,
+  bid INT REFERENCES Box (id) NOT NULL,
+  amount INT NOT NULL
+)
+
+ALTER TABLE Box
+DROP CONSTRAINT FK__BOX__owner__2D47B39A
+ALTER TABLE Box
+DROP COLUMN owner
+----------------
+帳號註冊
+
+登入
+
+我的帳戶 > 更改密碼
+----------------
+新增倉庫
+
+我的倉庫 > 編輯倉庫
+           
+查詢倉庫
+
+關閉倉庫
+----------------
+新增貨物
+
+增加貨物
+
+轉移貨物
+
+移出貨物
+----------------
+
+https://docs.jboss.org/hibernate/validator/4.1/api/org/hibernate/validator/constraints/package-summary.html
