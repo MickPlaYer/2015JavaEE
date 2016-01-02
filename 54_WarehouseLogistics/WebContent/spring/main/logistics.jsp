@@ -10,6 +10,7 @@
 <style>
 	button {
 		margin-bottom: 5px;
+		width: 200px;
 	}
 </style>
 
@@ -20,7 +21,7 @@
 			<button onclick="window.location.href='../logistics/boxToBox'">倉庫至倉庫</button><br>
 			<button onclick="window.location.href='../logistics/boxToLocation'">倉庫至地點</button><br>
 			<button onclick="window.location.href='../logistics/itemToBox'">貨物至倉庫</button><br>
-			<button onclick="window.location.href='../logistics/itemToLocation'">貨物至地點</button><br>
+			<button onclick="window.location.href='../logistics/itemToLocation'">貨物至地點</button><br><br>
 		
 		<a href="javascript: history.go(-1)">#springMessage("back")</a>
 	</div>

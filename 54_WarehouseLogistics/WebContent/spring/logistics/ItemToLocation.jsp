@@ -7,22 +7,33 @@
 	<title>Java54 倉儲物流</title>
 </head>
 
+<style>
+	input[type="submit"] {
+		margin-top: 5px;
+		width: 200px;
+	}
+</style>
+
 <body>
 	<div class="body">
-		<p class="title">新增貨物</p>
+		<p class="title">運送貨物</p>
 		
-		<form action="/54_WarehouseLogistics/spring/box/addItem/$BoxId" method="POST">
+		<form action="" method="POST">
 			<table class="navTable">
 				<tr>
-					<td>名稱：</td>
-					<td><input class="inputBox" type="text" name="name" value="${Item.name}" ${ReadOnly}/></td>
+					<td>貨物名稱：</td>
+					<td><input class="inputBox" type="text" name="item"/></td>
 				</tr>
 				<tr>
 					<td>數量：</td>
-					<td><input class="inputBox" type="number" min="1" value="1" name="amount"/></td>
+					<td><input class="inputBox" type="number" name="amount" min="1" value="1"/></td>
+				</tr>
+				<tr>
+					<td>目的地：</td>
+					<td><input class="inputBox" type="text" name="location"/></td>
 				</tr>
 			</table>
-			<input type="submit" value="新增"/>
+			<input type="submit" value="送貨"/>
 		</form>
 		
 		<a href="javascript: history.go(-1)">#springMessage("back")</a>

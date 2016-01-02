@@ -22,6 +22,7 @@
 		<property name="name" column="name" type="string" not-null="true" length="50"/>
 		<property name="location" column="location" type="string" not-null="true" length="50"/>
 		<property name="deadline" column="deadline" type="date"/>
+		<property name="hashCode" column="hashCode" type="string" length="32"/>
 	</class>
 	
 	<class name="model.ItemModel" table="Item">

@@ -9,6 +9,7 @@ public class BoxModel
 	private String name;
 	private String location;
 	private Date deadline;
+	private String hashCode;
 	
 	public int getId()
 	{
@@ -58,5 +59,15 @@ public class BoxModel
 	public void setDeadline(Date deadline)
 	{
 		this.deadline = deadline;
+	}
+
+	public String getHashCode()
+	{
+		return hashCode;
+	}
+
+	public void setHashCode(String hashCode)
+	{
+		this.hashCode = hashCode;
 	}
 }

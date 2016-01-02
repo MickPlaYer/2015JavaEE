@@ -12,15 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
+import converter.MD5Converter;
 import exceptions.NullBoxException;
 import model.AccountModel;
 import model.BoxModel;
-import model.ItemAmountModel;
 import service.account.BoxDatabase;
 import viewmodel.BuyBoxModel;
 
@@ -41,12 +40,13 @@ public class MainController extends SpringController
 	{
 		try (ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(CONTEXT_FILE))
 		{
+			// Object result = sessionCheck(httpSession);
+			// if (result.getClass().equals(ModelAndView.class))
+			// 	return (ModelAndView)result;
+			// AccountModel account = (AccountModel)result;
+			String name = (String)httpSession.getAttribute("name");
 			String page = (String)context.getBean("mainPage");
-			Object result = sessionCheck(httpSession);
-			if (result.getClass().equals(ModelAndView.class))
-				return (ModelAndView)result;
-			AccountModel account = (AccountModel)result;
-			return new ModelAndView(page, "Account", account);
+			return new ModelAndView(page, "Name", name);
 		}
 	}
 	
@@ -80,7 +80,7 @@ public class MainController extends SpringController
 				List<BoxModel> boxList = boxDatabase.listByOwner(account.getId());
 				for(BoxModel box : boxList)
 				{
-					if (box.getDeadline() != null)
+					if (box.getHashCode() == null)
 					{
 						list.add(box);
 					}
@@ -102,9 +102,6 @@ public class MainController extends SpringController
 	{
 		try (ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(CONTEXT_FILE))
 		{
-			//Object result = sessionCheck(httpSession);
-			//if (result.getClass().equals(ModelAndView.class))
-			//	return (ModelAndView) result;
 			String page = (String)context.getBean("buyBoxPage");
 			return new ModelAndView(page);
 		}
@@ -135,6 +132,8 @@ public class MainController extends SpringController
 			BoxModel box;
 			try
 			{
+				String hashCode = "NiSeMoNo" + model.getName() + new Date().toString();
+				hashCode = MD5Converter.convert(hashCode);
 				String deadline = model.getDeadline();
 				Calendar calendar = Calendar.getInstance();
 				calendar.setTime(new Date());
@@ -157,16 +156,14 @@ public class MainController extends SpringController
 				box.setName(model.getName());
 				box.setLocation(model.getLocation());
 				box.setDeadline(calendar.getTime());
+				box.setHashCode(hashCode);
 				boxDatabase.create(box);
 			}
 			catch (Exception exception)
 			{ return getErrorModelAndView(exception, DB_ERROR);	}
-			String page = (String)context.getBean("myBoxPage");
-			ModelAndView payPage = new ModelAndView("redirect:/" + page);
-			/*ModelAndView payPage = new ModelAndView("redirect:/spring/main/test");
-			payPage.addObject("token", "token");
-			payPage.addObject("price", "1000");
-			payPage.addObject("url", "xxx.xxx.xxx");*/
+			// String page = (String)context.getBean("myBoxPage");
+			// ModelAndView payPage = new ModelAndView("redirect:/" + page);
+			ModelAndView payPage = new ModelAndView("redirect:/spring/box/" + box.getId() + "/" + box.getHashCode());
 			return payPage;
 		}
 	}

@@ -37,7 +37,7 @@ public class BoxController extends SpringController
 	}
 
 	@RequestMapping(value = "/addItem/{id}/{iid}", method = RequestMethod.GET)
-	public ModelAndView getAddItemPageWithId(@PathVariable("id") int id, @PathVariable("iid") int iid) throws Exception
+	public ModelAndView getAddItemWithIdPage(@PathVariable("id") int id, @PathVariable("iid") int iid) throws Exception
 	{
 		try (ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(CONTEXT_FILE))
 		{
@@ -119,7 +119,17 @@ public class BoxController extends SpringController
 	}
 	
 	@RequestMapping(value = "/removeItem/{id}/{iid}", method = RequestMethod.GET)
-	public ModelAndView getRemoveItemPageWithId(@PathVariable("id") int id, @PathVariable("iid") int iid) throws Exception
+	public ModelAndView getRemoveItemWithIdPage(@PathVariable("id") int id, @PathVariable("iid") int iid) throws Exception
+	{
+		try (ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(CONTEXT_FILE))
+		{
+			String page = (String)context.getBean("removeItemWithIdPage");
+			return getModifyItemPageWithItem(id, iid, page);
+		}
+	}
+	
+	@RequestMapping(value = "/removeItem/{id}", method = RequestMethod.GET)
+	public ModelAndView getRemoveItemPage(@PathVariable("id") int id) throws Exception
 	{
 		try (ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(CONTEXT_FILE))
 		{
@@ -136,19 +146,9 @@ public class BoxController extends SpringController
 			catch (Exception exception)
 			{ return getErrorModelAndView(exception, DB_ERROR);	}
 			String page = (String)context.getBean("removeItemPage");
-			ModelAndView view = getModifyItemPageWithItem(id, iid, page);
+			ModelAndView view = getModifyItemPage(id, page);
 			view.addObject("ItemList", itemList);
 			return view;
-		}
-	}
-	
-	@RequestMapping(value = "/removeItem/{id}", method = RequestMethod.GET)
-	public ModelAndView getRemoveItemPage(@PathVariable("id") int id) throws Exception
-	{
-		try (ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(CONTEXT_FILE))
-		{
-			String page = (String)context.getBean("removeItemPage");
-			return getModifyItemPage(id, page);
 		}
 	}
 	
@@ -255,6 +255,33 @@ public class BoxController extends SpringController
 			view.addObject("Box", box);
 			view.addObject("ItemList", itemList);
 			return view;
+		}
+	}
+	
+	// This is for debug use.
+	@RequestMapping(value = "/{id}/{hashCode}", method = RequestMethod.GET)
+	public ModelAndView activeBox(@PathVariable("id") int id, @PathVariable("hashCode") String hashCode) throws Exception
+	{
+		try (ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(CONTEXT_FILE))
+		{
+			BoxDatabase boxDatabase = new BoxDatabase();
+			BoxModel box;
+			try
+			{
+				box = boxDatabase.find(id);
+				if (box.getHashCode() == null)
+					throw new Exception("The box has actived.");
+				if (!box.getHashCode().equals(hashCode))
+					throw new Exception("Error hash code.");
+				box.setHashCode(null);
+				boxDatabase.update(id, box);
+			}
+			catch (NullBoxException exception)
+			{ return getErrorModelAndView(exception, exception.getMessage()); }
+			catch (Exception exception)
+			{ return getErrorModelAndView(exception, DB_ERROR);	}
+			String page = (String)context.getBean("removeItemSuccess");
+			return new ModelAndView("redirect:/" + page + id);
 		}
 	}
 }

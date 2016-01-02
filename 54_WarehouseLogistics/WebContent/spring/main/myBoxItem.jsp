@@ -29,8 +29,8 @@
 				<td>$Item.amount</td>
 				<td><button onclick="window.location.href='./addItem/$Box.id/$Item.id'">新增</button></td>
 				<td><button onclick="window.location.href='./removeItem/$Box.id/$Item.id'">移除</button></td>
-				<td><button onclick="window.location.href='../logistics/boxToBox/$Item.id'">運送至倉庫</button></td>
-				<td><button onclick="window.location.href='../logistics/boxToLocation/$Item.id'">運送至地點</button></td>
+				<td><button onclick="window.location.href='../logistics/boxToBox/$Box.id/$Item.id'">運送至倉庫</button></td>
+				<td><button onclick="window.location.href='../logistics/boxToLocation/$Box.id/$Item.id'">運送至地點</button></td>
 			</tr> 
 			#end
 			<tr>

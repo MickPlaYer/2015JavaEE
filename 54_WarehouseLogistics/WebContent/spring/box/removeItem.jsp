@@ -11,21 +11,27 @@
 	<div class="body">
 		<p class="title">移除貨物</p>
 		
-		<form action="/54_WarehouseLogistics/spring/box/removeItem/$BoxId" method="POST">
+		<form action="/54_WarehouseLogistics/spring/box/removeItem/${BoxId}" method="POST">
 			<table class="navTable">
 				<tr>
 					<td>名稱：</td>
-					<td><input class="inputBox" type="text" name="name" value="${Item.name}" ${ReadOnly}/></td>
+					<td>
+						<select class="inputBox" name="name">
+							#foreach(${Item} in ${ItemList})
+								<option value="${Item.name}">${Item.name} (${Item.amount})</option>
+							#end
+						</select>
+					</td>
 				</tr>
 				<tr>
 					<td>數量：</td>
-					<td><input class="inputBox" type="number" min="1" value="1" name="amount"/></td>
+					<td><input class="inputBox" type="number" min="1" value="${ItemList[0].amount}" name="amount"/></td>
 				</tr>
 			</table>
 			<input type="submit" value="移除"/>
 		</form>
 		
-		<a href="/54_WarehouseLogistics/spring/box/$BoxId">#springMessage("back")</a>
+		<a href="javascript: history.go(-1)">#springMessage("back")</a>
 	</div>
 </body>
 
