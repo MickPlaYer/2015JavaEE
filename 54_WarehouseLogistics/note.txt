@@ -38,6 +38,17 @@ CREATE TABLE Item_in_box
   amount INT NOT NULL
 )
 
+CREATE TABLE Waybill
+(
+  id INT IDENTITY(1,1) PRIMARY KEY,
+  accountID int NOT NULL,
+  contents varchar(50) DEFAULT NULL,
+  _from varchar(50) DEFAULT NULL,
+  _to varchar(50) DEFAULT NULL,
+  status int DEFAULT 0,
+  fee INT NOT NULL
+)
+
 ALTER TABLE Box
 DROP CONSTRAINT FK__BOX__owner__2D47B39A
 ALTER TABLE Box

@@ -23,7 +23,7 @@
 			<button onclick="window.location.href='../logistics/itemToBox'">貨物至倉庫</button><br>
 			<button onclick="window.location.href='../logistics/itemToLocation'">貨物至地點</button><br><br>
 		
-		<a href="javascript: history.go(-1)">#springMessage("back")</a>
+		<a href="/54_WarehouseLogistics/spring/main/">#springMessage("back")</a>
 	</div>
 </body>
 

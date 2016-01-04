@@ -1,9 +1,12 @@
 package viewmodel;
 
+import javax.validation.constraints.Pattern;
+
 public class BoxToBoxModel
 {
 	private int fromBoxId;
 	private int toBoxId;
+	@Pattern(regexp = "[a-zA-Z\u4E00-\u9FFF0-9_]+.{1,32}", message = "{error.userName.format}")
 	private String item;
 	private int amount;
 	

@@ -209,4 +209,12 @@ public class BoxDatabase
 		transaction.commit();
 		session.close();
 	}
+
+	public ItemModel findItem(int id)
+	{
+		ItemModel box = new ItemModel();
+		session = sessionFactory.openSession();
+		box = (ItemModel)session.get(ItemModel.class, id);
+		return box;
+	}
 }

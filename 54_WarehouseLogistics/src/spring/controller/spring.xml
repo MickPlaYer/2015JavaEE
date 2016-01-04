@@ -59,14 +59,25 @@
     <bean id="boxToBoxPage" class="java.lang.String">
 		<constructor-arg type="String" value="spring/logistics/boxToBox"/>
     </bean>
+    <bean id="boxToBoxWithIdPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/logistics/boxToBoxWithId"/>
+    </bean>
     <bean id="boxToLocationPage" class="java.lang.String">
 		<constructor-arg type="String" value="spring/logistics/boxToLocation"/>
+    </bean>
+    <bean id="boxToLocationWithIdPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/logistics/boxToLocationWithId"/>
     </bean>
     <bean id="itemToBoxPage" class="java.lang.String">
 		<constructor-arg type="String" value="spring/logistics/itemToBox"/>
     </bean>
     <bean id="itemToLocationPage" class="java.lang.String">
 		<constructor-arg type="String" value="spring/logistics/itemToLocation"/>
+    </bean>
+    
+    
+    <bean id="boxToBoxSuccessPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/main/logistics"/>
     </bean>
     
     

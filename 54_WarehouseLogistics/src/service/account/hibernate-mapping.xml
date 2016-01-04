@@ -49,4 +49,16 @@
 		<property name="amount" column="amount" type="integer" not-null="true" length="50"/>
 	</class>
 	
+	<class name="model.WaybillModel" table="Waybill">
+		<id name="id" column="id" type="integer">
+			<generator class="native"/>
+		</id>
+		<property name="accountId" column="accountId" type="integer" not-null="true" length="50"/>
+		<property name="contents" column="contents" type="string" length="50"/>
+		<property name="from" column="_from" type="string" length="50"/>
+		<property name="to" column="_to" type="string" length="50"/>
+		<property name="status" column="status" type="integer" not-null="true" length="50"/>
+		<property name="fee" column="fee" type="integer" not-null="true" length="50"/>
+	</class>
+	
 </hibernate-mapping>

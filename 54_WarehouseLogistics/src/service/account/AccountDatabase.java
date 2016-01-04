@@ -95,4 +95,17 @@ public class AccountDatabase
 			throw new NullAccountException();
 		return list;
 	}
+
+	@SuppressWarnings("unchecked")
+	public AccountModel findByToken(String token) throws NullAccountException
+	{
+		List<AccountModel> list;
+		Session session = sessionFactory.openSession();
+		Criteria criteria = session.createCriteria(AccountModel.class);
+		criteria.add(Restrictions.eq("token", token));
+		list = criteria.list();
+		if (list.isEmpty())
+			throw new NullAccountException();
+		return list.get(0);
+	}
 }
