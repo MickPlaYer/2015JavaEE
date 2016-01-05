@@ -18,7 +18,7 @@ import exceptions.AccountExistException;
 import exceptions.LoginFailException;
 import exceptions.NullAccountException;
 import model.AccountModel;
-import service.account.AccountDatabase;
+import service.database.AccountDatabase;
 import viewmodel.LoginModel;
 import viewmodel.RegisterModel;
 

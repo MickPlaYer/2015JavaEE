@@ -21,9 +21,12 @@ import model.BoxModel;
 import model.ItemBoxModel;
 import model.ItemModel;
 import model.WaybillModel;
-import service.account.BoxDatabase;
-import service.account.WaybillDatabase;
+import service.database.BoxDatabase;
+import service.database.WaybillDatabase;
 import viewmodel.BoxToBoxModel;
+import viewmodel.BoxToLocationModel;
+import viewmodel.ItemToBoxModel;
+import viewmodel.ItemToLocationModel;
 
 @Controller()
 @RequestMapping("/logistics")
@@ -38,7 +41,7 @@ public class LogisticsController extends SpringController
 	}
 
 	@RequestMapping(value = "/{method}", method = RequestMethod.GET)
-	public ModelAndView boxToBox(@PathVariable("method") String method) throws Exception
+	public ModelAndView logistics(@PathVariable("method") String method) throws Exception
 	{
 		try (ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(CONTEXT_FILE))
 		{
@@ -54,8 +57,10 @@ public class LogisticsController extends SpringController
 			AccountModel account = (AccountModel)result;
 			BoxDatabase boxDatabase = new BoxDatabase();
 			List<BoxModel> boxList = new ArrayList<BoxModel>();
+			List<ItemModel> itemList;
 			try
 			{ 
+				itemList = boxDatabase.listItem();
 				List<BoxModel> list = boxDatabase.listByOwner(account.getId());
 				for(BoxModel box : list)
 					if (box.getHashCode() == null)
@@ -67,6 +72,7 @@ public class LogisticsController extends SpringController
 			{ return getErrorModelAndView(exception, DB_ERROR);	}
 
 			view.addObject("BoxList", boxList);
+			view.addObject("ItemList", itemList);
 			return view;
 		}
 	}
@@ -83,6 +89,7 @@ public class LogisticsController extends SpringController
 			BoxDatabase boxDatabase = new BoxDatabase();
 			BoxModel box;
 			ItemModel item;
+			ItemBoxModel itemBox;
 			List<BoxModel> boxList = new ArrayList<BoxModel>();
 			try
 			{
@@ -92,6 +99,9 @@ public class LogisticsController extends SpringController
 				item = boxDatabase.findItem(itemId);
 				if (item == null)
 					throw new Exception("Item not fount.");
+				itemBox = boxDatabase.findItemBox(box.getId(), item.getId());
+				if (itemBox == null)
+					throw new Exception("Item not fount in the box.");
 				List<BoxModel> list = boxDatabase.listByOwner(account.getId());
 				for(BoxModel b : list)
 					if (b.getHashCode() == null && b.getId() != box.getId())
@@ -105,6 +115,7 @@ public class LogisticsController extends SpringController
 			ModelAndView view = new ModelAndView(page);
 			view.addObject("Box", box);
 			view.addObject("Item", item);
+			view.addObject("ItemBox", itemBox);
 			view.addObject("BoxList", boxList);
 			return view;
 		}
@@ -122,6 +133,7 @@ public class LogisticsController extends SpringController
 			BoxDatabase boxDatabase = new BoxDatabase();
 			BoxModel box;
 			ItemModel item;
+			ItemBoxModel itemBox;
 			try
 			{
 				box = boxDatabase.find(boxId);
@@ -130,6 +142,9 @@ public class LogisticsController extends SpringController
 				item = boxDatabase.findItem(itemId);
 				if (item == null)
 					throw new Exception("Item not fount.");
+				itemBox = boxDatabase.findItemBox(box.getId(), item.getId());
+				if (itemBox == null)
+					throw new Exception("Item not fount in the box.");
 			}
 			catch (NullBoxException exception)
 			{ return getErrorModelAndView(exception, exception.getMessage()); }
@@ -139,6 +154,7 @@ public class LogisticsController extends SpringController
 			ModelAndView view = new ModelAndView(page);
 			view.addObject("Box", box);
 			view.addObject("Item", item);
+			view.addObject("ItemBox", itemBox);
 			return view;
 		}
 	}
@@ -191,7 +207,7 @@ public class LogisticsController extends SpringController
 				waybill.setFee(model.getAmount() * 10);
 				waybill.setFrom(boxFrom.getLocation());
 				waybill.setTo(boxTo.getLocation());
-				waybill.setStatus(1);
+				waybill.setStatus(2);
 				if (itemFromBox.getAmount() == 0)
 					boxDatabase.deleteItemBox(itemFromBox);
 				else if (itemFromBox.getAmount() > 0)
@@ -208,13 +224,165 @@ public class LogisticsController extends SpringController
 			{ return getErrorModelAndView(exception, exception.getMessage()); }
 			catch (Exception exception)
 			{ return getErrorModelAndView(exception, DB_ERROR);	}
-			String page = (String)context.getBean("boxToBoxSuccessPage");
+			String page = (String)context.getBean("delievrSuccessPage");
 			return new ModelAndView("redirect:/" + page);
 		}
 	}
 	
-	/*@RequestMapping(value = "/boxToLocation", method = RequestMethod.GET)
-	public ModelAndView boxToLocation() throws Exception
+	@RequestMapping(value = "/boxToLocation", method = RequestMethod.POST)
+	public ModelAndView deliverBoxToLocation(@Valid BoxToLocationModel model, BindingResult bindingResult) throws Exception
+	{
+		if (bindingResult.hasErrors())
+			return new ModelAndView(errorPage, ERROR_MODEL, bindingResult.getFieldErrors());
+		Object result = sessionCheck(httpSession);
+		if (result.getClass().equals(ModelAndView.class))
+			return (ModelAndView) result;
+		AccountModel account = (AccountModel)result;
+		BoxDatabase boxDatabase = new BoxDatabase();
+		BoxModel boxFrom;
+		ItemModel item;
+		WaybillDatabase waybillDatabase = new WaybillDatabase();
+		WaybillModel waybill = new WaybillModel();
+		try
+		{
+			boxFrom = boxDatabase.find(model.getFromBoxId());
+			if (account.getId() != boxFrom.getOwner())
+				throw new Exception("No allow to use the box.");
+			item = boxDatabase.findItemByName(model.getItem());
+			if (item == null)
+				throw new Exception("Item not fount.");
+			ItemBoxModel itemFromBox = boxDatabase.findItemBox(model.getFromBoxId(), item.getId());
+			if (itemFromBox == null)
+				throw new Exception("Item not exist in the box.");
+			if (model.getAmount() > itemFromBox.getAmount())
+				throw new Exception("Item not enough in the box.");
+			itemFromBox.addAmount(-model.getAmount());
+			waybill.setAccountId(account.getId());
+			waybill.setContents(item.getName() + " x " + model.getAmount());
+			waybill.setFee(model.getAmount() * 10);
+			waybill.setFrom(boxFrom.getLocation());
+			waybill.setTo(model.getLocation());
+			waybill.setStatus(2);
+			if (itemFromBox.getAmount() == 0)
+				boxDatabase.deleteItemBox(itemFromBox);
+			else if (itemFromBox.getAmount() > 0)
+				boxDatabase.updateItemBox(itemFromBox);
+			else
+				throw new Exception("LogisticsController Error");
+			waybillDatabase.create(waybill);
+		}
+		catch (NullBoxException exception)
+		{ return getErrorModelAndView(exception, exception.getMessage()); }
+		catch (Exception exception)
+		{ return getErrorModelAndView(exception, DB_ERROR);	}
+		try (ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(CONTEXT_FILE))
+		{
+			String page = (String)context.getBean("delievrSuccessPage");
+			return new ModelAndView("redirect:/" + page);
+		}
+	}
+	
+	@RequestMapping(value = "/itemToBox", method = RequestMethod.POST)
+	public ModelAndView deliverItemToBox(@Valid ItemToBoxModel model, BindingResult bindingResult) throws Exception
+	{
+		if (bindingResult.hasErrors())
+			return new ModelAndView(errorPage, ERROR_MODEL, bindingResult.getFieldErrors());
+		Object result = sessionCheck(httpSession);
+		if (result.getClass().equals(ModelAndView.class))
+			return (ModelAndView) result;
+		AccountModel account = (AccountModel)result;
+		BoxDatabase boxDatabase = new BoxDatabase();
+		BoxModel boxTo;
+		ItemModel item;
+		ItemBoxModel itemBox;
+		WaybillDatabase waybillDatabase = new WaybillDatabase();
+		WaybillModel waybill = new WaybillModel();
+		try
+		{
+			boxTo= boxDatabase.find(model.getToBoxId());
+			if (account.getId() != boxTo.getOwner())
+				throw new Exception("No allow to use the box.");
+			item = boxDatabase.findItemByName(model.getItem());
+			if (item == null)
+			{
+				item = new ItemModel();
+				item.setName(model.getItem());
+				boxDatabase.createItem(item);
+				item = boxDatabase.findItemByName(model.getItem());
+				itemBox = new ItemBoxModel();
+				itemBox.setItemId(item.getId());
+				itemBox.setBoxId(boxTo.getId());
+				itemBox.setAmount(model.getAmount());
+				boxDatabase.createItemBox(itemBox);
+			}
+			else
+			{
+				itemBox = boxDatabase.findItemBox(model.getToBoxId(), item.getId());
+				if (itemBox == null)
+				{
+					itemBox = new ItemBoxModel();
+					itemBox.setItemId(item.getId());
+					itemBox.setBoxId(boxTo.getId());
+					itemBox.setAmount(model.getAmount());
+					boxDatabase.createItemBox(itemBox);
+				}
+				else
+				{
+					itemBox.addAmount(model.getAmount());
+					boxDatabase.updateItemBox(itemBox);
+				}
+			}
+			waybill.setAccountId(account.getId());
+			waybill.setContents(item.getName() + " x " + model.getAmount());
+			waybill.setFee(model.getAmount() * 10);
+			waybill.setFrom("由公司出貨");
+			waybill.setTo(boxTo.getLocation());
+			waybill.setStatus(2);
+			waybillDatabase.create(waybill);
+		}
+		catch (NullBoxException exception)
+		{ return getErrorModelAndView(exception, exception.getMessage()); }
+		catch (Exception exception)
+		{ return getErrorModelAndView(exception, DB_ERROR);	}
+		try (ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(CONTEXT_FILE))
+		{
+			String page = (String)context.getBean("delievrSuccessPage");
+			return new ModelAndView("redirect:/" + page);
+		}
+	}
+	
+	@RequestMapping(value = "/itemToLocation", method = RequestMethod.POST)
+	public ModelAndView deliverItemToLocation(@Valid ItemToLocationModel model, BindingResult bindingResult) throws Exception
+	{
+		if (bindingResult.hasErrors())
+			return new ModelAndView(errorPage, ERROR_MODEL, bindingResult.getFieldErrors());
+		Object result = sessionCheck(httpSession);
+		if (result.getClass().equals(ModelAndView.class))
+			return (ModelAndView) result;
+		AccountModel account = (AccountModel)result;
+		WaybillDatabase waybillDatabase = new WaybillDatabase();
+		try
+		{
+			WaybillModel waybill = new WaybillModel();
+			waybill.setAccountId(account.getId());
+			waybill.setContents(model.getContents());
+			waybill.setFee(model.getContents().length() * 10);
+			waybill.setFrom("由公司出貨");
+			waybill.setTo(model.getLocation());
+			waybill.setStatus(2);
+			waybillDatabase.create(waybill);
+		}
+		catch (Exception exception)
+		{ exception.printStackTrace(); return getErrorModelAndView(exception, DB_ERROR);	}
+		try (ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(CONTEXT_FILE))
+		{
+			String page = (String)context.getBean("delievrSuccessPage");
+			return new ModelAndView("redirect:/" + page);
+		}
+	}
+	
+	@RequestMapping(method = RequestMethod.GET)
+	public ModelAndView getWaybillListPage() throws Exception
 	{
 		try (ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(CONTEXT_FILE))
 		{
@@ -222,23 +390,42 @@ public class LogisticsController extends SpringController
 			if (result.getClass().equals(ModelAndView.class))
 				return (ModelAndView) result;
 			AccountModel account = (AccountModel)result;
-			BoxDatabase boxDatabase = new BoxDatabase();
-			List<BoxModel> boxList = new ArrayList<BoxModel>();
+			WaybillDatabase waybillDatabase = new WaybillDatabase();
+			List<WaybillModel> list;
 			try
-			{ 
-				List<BoxModel> list = boxDatabase.listByOwner(account.getId());
-				for(BoxModel box : list)
-					if (box.getHashCode() == null)
-						boxList.add(box);
+			{
+				list = waybillDatabase.listByAccount(account.getId());
 			}
-			catch (NullBoxException exception)
-			{ return getErrorModelAndView(exception, exception.getMessage()); }
 			catch (Exception exception)
 			{ return getErrorModelAndView(exception, DB_ERROR);	}
-			String page = (String)context.getBean("boxToLocationPage");
-			ModelAndView view = new ModelAndView(page);
-			view.addObject("BoxList", boxList);
+			String page = (String)context.getBean("waybillListPage");
+			ModelAndView view = new ModelAndView(page, "WaybillList", list);
 			return view;
 		}
-	}*/
+	}
+	
+	@RequestMapping(value = "/delete/{id}", method = RequestMethod.POST)
+	public ModelAndView deleteWaybill(@PathVariable("id") int id) throws Exception
+	{
+		Object result = sessionCheck(httpSession);
+		if (result.getClass().equals(ModelAndView.class))
+			return (ModelAndView) result;
+		AccountModel account = (AccountModel)result;
+		WaybillDatabase waybillDatabase = new WaybillDatabase();
+		WaybillModel waybill;
+		try
+		{
+			waybill = waybillDatabase.find(id);
+			if (waybill.getAccountId() != account.getId())
+				throw new Exception("The waybill is not your.");
+			waybillDatabase.delete(id);
+		}
+		catch (Exception exception)
+		{ return getErrorModelAndView(exception, DB_ERROR);	}
+		try (ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(CONTEXT_FILE))
+		{
+			String page = (String)context.getBean("delievrSuccessPage");
+			return new ModelAndView("redirect:/" + page);
+		}
+	}
 }

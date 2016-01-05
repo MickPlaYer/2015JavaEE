@@ -21,12 +21,8 @@
 		<form action="" method="POST">
 			<table class="navTable">
 				<tr>
-					<td>貨物名稱：</td>
-					<td><input class="inputBox" type="text" name="item"/></td>
-				</tr>
-				<tr>
-					<td>數量：</td>
-					<td><input class="inputBox" type="number" name="amount" min="1" value="1"/></td>
+					<td>內容物：</td>
+					<td><input class="inputBox" type="text" name="contents"/></td>
 				</tr>
 				<tr>
 					<td>目的地：</td>

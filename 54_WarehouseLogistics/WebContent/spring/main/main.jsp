@@ -22,7 +22,7 @@
 		<button onclick="window.location.href='/54_WarehouseLogistics/spring/main/myAccount'">我的帳戶</button><br>
 		<button onclick="window.location.href='/54_WarehouseLogistics/spring/main/myBox'">我的倉庫列表</button><br>
 		<button onclick="window.location.href='/54_WarehouseLogistics/spring/main/logistics'">我要送貨</button><br>
-		<button onclick="window.location.href='/54_WarehouseLogistics/spring/main/myBox'">我的運貨單列表</button><br><br>
+		<button onclick="window.location.href='/54_WarehouseLogistics/spring/logistics'">我的運貨單列表</button><br><br>
 		
 		<a href="/54_WarehouseLogistics/">登出</a>
 	</div>

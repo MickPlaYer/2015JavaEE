@@ -76,8 +76,13 @@
     </bean>
     
     
-    <bean id="boxToBoxSuccessPage" class="java.lang.String">
-		<constructor-arg type="String" value="spring/main"/>
+    <bean id="delievrSuccessPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/logistics"/>
+    </bean>
+    
+
+    <bean id="waybillListPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/logistics/list"/>
     </bean>
     
     

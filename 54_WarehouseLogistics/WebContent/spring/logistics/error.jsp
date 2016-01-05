@@ -18,6 +18,7 @@
 		#end
 		</p>
 		<a href="javascript: history.go(-1)">#springMessage("back")</a>
+		<a href="/54_WarehouseLogistics">#springMessage("home")</a>
 	</div>
 </body>
 

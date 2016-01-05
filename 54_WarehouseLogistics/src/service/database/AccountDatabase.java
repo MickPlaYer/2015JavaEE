@@ -1,4 +1,4 @@
-package service.account;
+package service.database;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ import model.AccountModel;
 
 public class AccountDatabase
 {
-	private final String CONFIG = "service/account/hibernate-config.xml";
+	private final String CONFIG = "service/database/hibernate-config.xml";
 	private SessionFactory sessionFactory;
 	private Session session;
 	private Criteria criteria;
@@ -65,6 +65,7 @@ public class AccountDatabase
 		AccountModel account = new AccountModel();
 		session = sessionFactory.openSession();
 		account = (AccountModel)session.get(AccountModel.class, id);
+		session.close();
 		if (account == null)
 			throw new NullAccountException();
 		return account;
@@ -74,10 +75,11 @@ public class AccountDatabase
 	public AccountModel findByName(String name) throws Exception
 	{
 		List<AccountModel> list;
-		Session session = sessionFactory.openSession();
-		Criteria criteria = session.createCriteria(AccountModel.class);
+		session = sessionFactory.openSession();
+		criteria = session.createCriteria(AccountModel.class);
 		criteria.add(Restrictions.eq("name", name));
 		list = criteria.list();
+		session.close();
 		if (list.isEmpty())
 			throw new NullAccountException();
 		return list.get(0);
@@ -100,10 +102,11 @@ public class AccountDatabase
 	public AccountModel findByToken(String token) throws NullAccountException
 	{
 		List<AccountModel> list;
-		Session session = sessionFactory.openSession();
-		Criteria criteria = session.createCriteria(AccountModel.class);
+		session = sessionFactory.openSession();
+		criteria = session.createCriteria(AccountModel.class);
 		criteria.add(Restrictions.eq("token", token));
 		list = criteria.list();
+		session.close();
 		if (list.isEmpty())
 			throw new NullAccountException();
 		return list.get(0);

@@ -21,8 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import exceptions.NullAccountException;
 import exceptions.NullBoxException;
-import service.account.AccountDatabase;
-import service.account.BoxDatabase;
+import service.database.AccountDatabase;
+import service.database.BoxDatabase;
 import webservice.requestmodel.AddItemModel;
 import webservice.requestmodel.BoxGetModel;
 import webservice.responsemodel.BoxWSModel;

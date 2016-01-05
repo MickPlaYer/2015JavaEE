@@ -25,16 +25,16 @@
 					<td>購買期限：</td>
 					<td>
 						<select name="deadline">
-	  						<option value="year">一年</option>
-	  						<option value="helf-year">半年</option>
-	  						<option value="month">一個月</option>
+	  						<option value="year">一年 $500</option>
+	  						<option value="helf-year">半年 $350</option>
+	  						<option value="month">一個月 $100</option>
 						</select>
 					</td>
 				</tr>
 			</table>
 			<input type="submit" value="購買"/>
 		</form>
-		
+		<p class="message">本公司使用53銀行付款系統<br></p>
 		<a href="/54_WarehouseLogistics/spring/main/myBox">#springMessage("back")</a>
 	</div>
 </body>

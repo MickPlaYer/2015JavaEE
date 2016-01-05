@@ -1,4 +1,4 @@
-package service.account;
+package service.database;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ import model.ItemAmountModel;
 
 public class BoxDatabase
 {
-	private final String CONFIG = "service/account/hibernate-config.xml";
+	private final String CONFIG = "service/database/hibernate-config.xml";
 	private SessionFactory sessionFactory;
 	private Session session;
 	private Criteria criteria;
@@ -68,6 +68,7 @@ public class BoxDatabase
 		BoxModel box = new BoxModel();
 		session = sessionFactory.openSession();
 		box = (BoxModel)session.get(BoxModel.class, id);
+		session.close();
 		if (box == null)
 			throw new NullBoxException();
 		return box;
@@ -150,10 +151,11 @@ public class BoxDatabase
 	public ItemModel findItemByName(String name)
 	{
 		List<ItemModel> list;
-		Session session = sessionFactory.openSession();
-		Criteria criteria = session.createCriteria(ItemModel.class);
+		session = sessionFactory.openSession();
+		criteria = session.createCriteria(ItemModel.class);
 		criteria.add(Restrictions.eq("name", name));
 		list = criteria.list();
+		session.close();
 		if (list.isEmpty())
 			return null;
 		return list.get(0);
@@ -215,6 +217,20 @@ public class BoxDatabase
 		ItemModel box = new ItemModel();
 		session = sessionFactory.openSession();
 		box = (ItemModel)session.get(ItemModel.class, id);
+		session.close();
 		return box;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<ItemModel> listItem()
+	{
+		List<ItemModel> list;
+		session = sessionFactory.openSession();
+		criteria = session.createCriteria(ItemModel.class);
+		list = criteria.list();
+		session.close();
+		if (list.isEmpty())
+			return null;
+		return list;
 	}
 }

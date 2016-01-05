@@ -33,7 +33,7 @@
 				</tr>
 				<tr>
 					<td>數量：</td>
-					<td><input class="inputBox" type="number" name="amount" min="1" value="1"/></td>
+					<td><input class="inputBox" type="number" name="amount" min="1" max="${ItemBox.amount}" value="1"/></td>
 				</tr>
 				<tr>
 					<td>目的倉庫：</td>

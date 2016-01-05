@@ -78,3 +78,13 @@ DROP COLUMN owner
 ----------------
 
 https://docs.jboss.org/hibernate/validator/4.1/api/org/hibernate/validator/constraints/package-summary.html
+
+{
+  "token":"token",
+  "location":"a good place",
+  "paymentId":255,
+  "list":[
+    { "boxId":1, "itemId":1, "amount":1 }
+
+  ]
+}

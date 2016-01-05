@@ -32,7 +32,13 @@
 				</tr>
 				<tr>
 					<td>貨物名稱：</td>
-					<td><input class="inputBox" type="text" name="item"/></td>
+					<td>
+						<select class="inputBox" name="item">
+							#foreach(${Item} in ${ItemList})
+								<option value="${Item.name}">${Item.name}</option>
+							#end
+						</select>
+					</td>
 				</tr>
 				<tr>
 					<td>數量：</td>

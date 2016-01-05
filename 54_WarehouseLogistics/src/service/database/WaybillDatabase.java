@@ -1,4 +1,4 @@
-package service.account;
+package service.database;
 
 import java.util.List;
 
@@ -8,13 +8,14 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.criterion.Restrictions;
 import org.hibernate.service.ServiceRegistry;
 
 import model.WaybillModel;
 
 public class WaybillDatabase
 {
-	private final String CONFIG = "service/account/hibernate-config.xml";
+	private final String CONFIG = "service/database/hibernate-config.xml";
 	private SessionFactory sessionFactory;
 	private Session session;
 	private Criteria criteria;
@@ -44,7 +45,7 @@ public class WaybillDatabase
 		transaction = session.beginTransaction();
 		session.update(waybill);
 		transaction.commit();
-		session.close();	
+		session.close();
 	}
 	
 	public void delete(int id) throws Exception
@@ -55,7 +56,7 @@ public class WaybillDatabase
 		transaction = session.beginTransaction();
 		session.delete(waybill);
 		transaction.commit();
-		session.close();	
+		session.close();
 	}
 	
 	public WaybillModel find(int id) throws Exception
@@ -63,6 +64,7 @@ public class WaybillDatabase
 		WaybillModel waybill = new WaybillModel();
 		session = sessionFactory.openSession();
 		waybill = (WaybillModel)session.get(WaybillModel.class, id);
+		session.close();
 		return waybill;
 	}
 	
@@ -72,6 +74,20 @@ public class WaybillDatabase
 		List<WaybillModel> list;
 		session = sessionFactory.openSession();
 		criteria = session.createCriteria(WaybillModel.class);
+		list = criteria.list();
+		session.close();
+		if (list.isEmpty())
+			return null;
+		return list;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<WaybillModel> listByAccount(int account)
+	{
+		List<WaybillModel> list;
+		session = sessionFactory.openSession();
+		criteria = session.createCriteria(WaybillModel.class);
+		criteria.add(Restrictions.eq("accountId", account));
 		list = criteria.list();
 		session.close();
 		if (list.isEmpty())

@@ -2,6 +2,7 @@ package model;
 
 public class WaybillModel
 {
+	private String[] statusStr = {"已開單", "運送中", "已送達"};
 	private int id;
 	private int accountId;
 	private String contents;
@@ -9,6 +10,7 @@ public class WaybillModel
 	private String to;
 	private int status;
 	private int fee;
+	private String stsr;
 	
 	public int getId()
 	{
@@ -77,5 +79,15 @@ public class WaybillModel
 	public void setFee(int fee)
 	{
 		this.fee = fee;
+	}
+
+	public String getStsr()
+	{
+		return statusStr[status];
+	}
+
+	public void setStsr(String stsr)
+	{
+		this.stsr = stsr;
 	}
 }

@@ -18,7 +18,7 @@
 	<div class="body">
 		<p class="title">運送貨物</p>
 		
-		<form action="" method="POST">
+		<form action="/54_WarehouseLogistics/spring/logistics/boxToLocation/" method="POST">
 			<table class="navTable">
 				<tr>
 					<td>取貨倉庫：</td>
@@ -33,7 +33,7 @@
 				</tr>
 				<tr>
 					<td>數量：</td>
-					<td><input class="inputBox" type="number" name="amount" min="1" value="1"/></td>
+					<td><input class="inputBox" type="number" name="amount" min="1" max="${ItemBox.amount}" value="1"/></td>
 				</tr>
 				<tr>
 					<td>目的地：</td>

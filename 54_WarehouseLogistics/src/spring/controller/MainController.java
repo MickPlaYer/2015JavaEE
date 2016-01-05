@@ -21,7 +21,7 @@ import converter.MD5Converter;
 import exceptions.NullBoxException;
 import model.AccountModel;
 import model.BoxModel;
-import service.account.BoxDatabase;
+import service.database.BoxDatabase;
 import viewmodel.BuyBoxModel;
 import viewmodel.PayModel;
 

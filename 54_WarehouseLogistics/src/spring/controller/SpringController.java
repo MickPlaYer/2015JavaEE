@@ -13,7 +13,7 @@ import org.springframework.web.servlet.ModelAndView;
 import exceptions.NullAccountException;
 import exceptions.SessionFailException;
 import model.AccountModel;
-import service.account.AccountDatabase;
+import service.database.AccountDatabase;
 
 public class SpringController
 {

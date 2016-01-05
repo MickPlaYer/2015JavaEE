@@ -9,6 +9,6 @@
 		<property name="hibernate.connection.datasource">java:comp/env/datasource/helloDS54</property>
 		<property name="hibernate.show_sql">true</property>
 		<property name="hibernate.tracnsaction.factory_class">org.hibernate.tracnsaction.JDBCTracnsactionFactory</property>
-		<mapping resource="service/account/hibernate-mapping.xml"/>
+		<mapping resource="service/database/hibernate-mapping.xml"/>
 	</session-factory>
 </hibernate-configuration>

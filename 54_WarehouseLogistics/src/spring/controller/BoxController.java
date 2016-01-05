@@ -21,7 +21,7 @@ import model.BoxModel;
 import model.ItemBoxModel;
 import model.ItemModel;
 import model.ItemAmountModel;
-import service.account.BoxDatabase;
+import service.database.BoxDatabase;
 import viewmodel.AddItemModel;
 
 @Controller()
