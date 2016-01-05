@@ -12,6 +12,7 @@ import model.WaybillModel;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -27,6 +28,8 @@ import service.database.BoxDatabase;
 import service.database.WaybillDatabase;
 import viewmodel.CheckPaymentModel;
 import webservice.requestmodel.AutoDeliverModel;
+import webservice.requestmodel.BoxGetModel;
+import webservice.responsemodel.WaybillWSModel;
 
 @RestController()
 @RequestMapping("/webservice/logistics")
@@ -111,6 +114,27 @@ public class LogisticsService
 		waybill.setStatus(2);
 		waybill = waybillDatabase.create(waybill);
 		return waybill.getId();
+	}
+	
+	@RequestMapping(value = "/{id}", method = RequestMethod.POST, produces = "application/json")
+	public @ResponseBody WaybillWSModel getWaybill(@PathVariable("id") int id, @RequestBody BoxGetModel model) throws Exception
+	{
+		AccountDatabase accountDatabae = new AccountDatabase();
+		AccountModel account = accountDatabae.findByToken(model.getToken());
+		WaybillDatabase waybillDatabase = new WaybillDatabase();
+		WaybillModel waybill = waybillDatabase.find(id);
+		if (waybill == null)
+			throw new NullAccountException();
+		if (waybill.getAccountId() != account.getId())
+			throw new Exception("Can't view the waybill.");
+		WaybillWSModel waybillWS = new WaybillWSModel();
+		waybillWS.setContents(waybill.getContents());
+		waybillWS.setFee(waybill.getFee());
+		waybillWS.setFrom(waybill.getFrom());
+		waybillWS.setId(waybill.getId());
+		waybillWS.setStatus(waybill.getStatus());
+		waybillWS.setTo(waybill.getTo());
+		return waybillWS;
 	}
 	
 	@ExceptionHandler(NullAccountException.class)
