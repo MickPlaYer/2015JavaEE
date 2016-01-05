@@ -26,6 +26,7 @@ import service.database.BoxDatabase;
 import webservice.requestmodel.AddItemModel;
 import webservice.requestmodel.BoxGetModel;
 import webservice.responsemodel.BoxWSModel;
+import webservice.responsemodel.ItemBoxWSModel;
 
 @RestController()
 @RequestMapping("/webservice/box")
@@ -68,8 +69,8 @@ public class BoxService
 		return list;
 	}
 	
-	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
-	public void addItemToBox(@PathVariable("id") int id, @RequestBody AddItemModel model) throws Exception
+	@RequestMapping(method = RequestMethod.PUT, value = "/{id}", produces = "application/json")
+	public @ResponseBody ItemBoxWSModel addItemToBox(@PathVariable("id") int id, @RequestBody AddItemModel model) throws Exception
 	{
 		AccountDatabase accountDatabae = new AccountDatabase();
 		AccountModel account;
@@ -107,14 +108,16 @@ public class BoxService
 			}
 			else
 			{
-				int amount = itemBox.getAmount();
-				amount += model.getAmount();
-				itemBox.setAmount(amount);
+				itemBox.addAmount(model.getAmount());
 				boxDatabase.updateItemBox(itemBox);
 			}
 		}
+		ItemBoxWSModel itemBoxModel = new ItemBoxWSModel();
+		itemBoxModel.setItemId(itemBox.getItemId());
+		itemBoxModel.setBoxId(itemBox.getBoxId());
+		itemBoxModel.setAmount(itemBox.getAmount());
+		return itemBoxModel;
 	}
-	
 	
 	@ExceptionHandler(NullAccountException.class)
 	@ResponseBody

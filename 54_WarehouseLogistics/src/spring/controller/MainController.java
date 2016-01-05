@@ -177,10 +177,6 @@ public class MainController extends SpringController
 			String url;
 			url = restTemplate.postForObject(uri, payModel, String.class);
 			return new ModelAndView("redirect:" + url);
-			// String page = (String)context.getBean("myBoxPage");
-			// ModelAndView payPage = new ModelAndView("redirect:/" + page);
-			// ModelAndView payPage = new ModelAndView("redirect:/spring/box/" + box.getId() + "/" + box.getHashCode());
-			// return payPage;
 		}
 	}
 }
