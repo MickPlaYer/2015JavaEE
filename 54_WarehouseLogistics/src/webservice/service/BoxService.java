@@ -69,7 +69,7 @@ public class BoxService
 		return list;
 	}
 	
-	@RequestMapping(method = RequestMethod.PUT, value = "/{id}", produces = "application/json")
+	@RequestMapping(method = RequestMethod.POST, value = "/{id}/add", produces = "application/json")
 	public @ResponseBody ItemBoxWSModel addItemToBox(@PathVariable("id") int id, @RequestBody AddItemModel model) throws Exception
 	{
 		AccountDatabase accountDatabae = new AccountDatabase();

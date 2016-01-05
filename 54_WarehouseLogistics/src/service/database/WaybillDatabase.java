@@ -29,13 +29,14 @@ public class WaybillDatabase
 		sessionFactory = config.buildSessionFactory(serviceRegistry);
 	}
 	
-	public void create(WaybillModel waybill) throws Exception
+	public WaybillModel create(WaybillModel waybill) throws Exception
 	{
 		session = sessionFactory.openSession();
 		transaction = session.beginTransaction();
 		session.save(waybill);
 		transaction.commit();
 		session.close();
+		return waybill;
 	}
 	
 	public void update(int id, WaybillModel waybill) throws Exception

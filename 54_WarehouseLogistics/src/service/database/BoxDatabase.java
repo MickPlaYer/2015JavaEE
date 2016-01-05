@@ -233,4 +233,28 @@ public class BoxDatabase
 			return null;
 		return list;
 	}
+
+	public void updateItemBoxList(List<ItemBoxModel> updateList)
+	{
+		session = sessionFactory.openSession();
+		transaction = session.beginTransaction();
+		for (ItemBoxModel b : updateList)
+		{
+			session.update(b);
+		}
+		transaction.commit();
+		session.close();
+	}
+
+	public void deleteItemBoxList(List<ItemBoxModel> deleteList)
+	{
+		session = sessionFactory.openSession();
+		transaction = session.beginTransaction();
+		for (ItemBoxModel b : deleteList)
+		{
+			session.delete(b);
+		}
+		transaction.commit();
+		session.close();
+	}
 }
