@@ -77,7 +77,7 @@
     
     
     <bean id="boxToBoxSuccessPage" class="java.lang.String">
-		<constructor-arg type="String" value="spring/main/logistics"/>
+		<constructor-arg type="String" value="spring/main"/>
     </bean>
     
     

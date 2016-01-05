@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
 
 import converter.MD5Converter;
@@ -22,6 +23,7 @@ import model.AccountModel;
 import model.BoxModel;
 import service.account.BoxDatabase;
 import viewmodel.BuyBoxModel;
+import viewmodel.PayModel;
 
 @Controller()
 @RequestMapping("/main")
@@ -130,6 +132,7 @@ public class MainController extends SpringController
 			AccountModel account = (AccountModel)result;
 			BoxDatabase boxDatabase = new BoxDatabase();
 			BoxModel box;
+			int value;
 			try
 			{
 				String hashCode = "NiSeMoNo" + model.getName() + new Date().toString();
@@ -141,12 +144,15 @@ public class MainController extends SpringController
 				{
 					case "year":
 						calendar.add(Calendar.YEAR, 1);
+						value = 500;
 						break;
 					case "helf-year":
 						calendar.add(Calendar.MONTH, 6);
+						value = 350;
 						break;
 					case "month":
 						calendar.add(Calendar.MONTH, 1);
+						value = 100;
 						break;
 					default:
 						throw new Exception("Error deadline Options!");
@@ -161,10 +167,20 @@ public class MainController extends SpringController
 			}
 			catch (Exception exception)
 			{ return getErrorModelAndView(exception, DB_ERROR);	}
+			
+			RestTemplate restTemplate = new RestTemplate();
+			PayModel payModel = new PayModel();
+			payModel.setValue(value);
+			payModel.setToken("381AC92740785E6B2A0DB48304AE669A");
+			payModel.setCallbackurl("http://ilab.csie.ntut.edu.tw:8080/54_WarehouseLogistics/spring/box/" + box.getId()+ "/" + box.getHashCode());
+			String uri = "http://ilab.csie.ntut.edu.tw:8080/final_53/spring/bank/auth";
+			String url;
+			url = restTemplate.postForObject(uri, payModel, String.class);
+			return new ModelAndView("redirect:" + url);
 			// String page = (String)context.getBean("myBoxPage");
 			// ModelAndView payPage = new ModelAndView("redirect:/" + page);
-			ModelAndView payPage = new ModelAndView("redirect:/spring/box/" + box.getId() + "/" + box.getHashCode());
-			return payPage;
+			// ModelAndView payPage = new ModelAndView("redirect:/spring/box/" + box.getId() + "/" + box.getHashCode());
+			// return payPage;
 		}
 	}
 }
