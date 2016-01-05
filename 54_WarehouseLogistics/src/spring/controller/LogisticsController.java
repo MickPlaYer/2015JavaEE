@@ -1,6 +1,8 @@
 package spring.controller;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -181,6 +183,10 @@ public class LogisticsController extends SpringController
 					throw new Exception("No allow to send item to the same box.");
 				boxFrom = boxDatabase.find(model.getFromBoxId());
 				boxTo= boxDatabase.find(model.getToBoxId());
+				Calendar calendar = Calendar.getInstance();
+				Date today = calendar.getTime();
+				if (today.after(boxFrom.getDeadline()) || today.after(boxTo.getDeadline()))
+					throw new Exception("倉庫已超過使用期限");
 				if (account.getId() != boxFrom.getOwner() || account.getId() != boxTo.getOwner())
 					throw new Exception("No allow to use the box.");
 				item = boxDatabase.findItemByName(model.getItem());
@@ -246,6 +252,10 @@ public class LogisticsController extends SpringController
 		try
 		{
 			boxFrom = boxDatabase.find(model.getFromBoxId());
+			Calendar calendar = Calendar.getInstance();
+			Date today = calendar.getTime();
+			if (today.after(boxFrom.getDeadline()))
+				throw new Exception("倉庫已超過使用期限");
 			if (account.getId() != boxFrom.getOwner())
 				throw new Exception("No allow to use the box.");
 			item = boxDatabase.findItemByName(model.getItem());
@@ -300,6 +310,10 @@ public class LogisticsController extends SpringController
 		try
 		{
 			boxTo= boxDatabase.find(model.getToBoxId());
+			Calendar calendar = Calendar.getInstance();
+			Date today = calendar.getTime();
+			if (today.after(boxTo.getDeadline()))
+				throw new Exception("倉庫已超過使用期限");
 			if (account.getId() != boxTo.getOwner())
 				throw new Exception("No allow to use the box.");
 			item = boxDatabase.findItemByName(model.getItem());

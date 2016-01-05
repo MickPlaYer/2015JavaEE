@@ -1,6 +1,8 @@
 package spring.controller;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -74,6 +76,10 @@ public class BoxController extends SpringController
 			try
 			{
 				box = boxDatabase.find(id);
+				Calendar calendar = Calendar.getInstance();
+				Date today = calendar.getTime();
+				if (today.after(box.getDeadline()))
+					throw new Exception("倉庫已超過使用期限");
 				if (account.getId() != box.getOwner())
 					throw new Exception("No allow to use the box.");
 				item = boxDatabase.findItemByName(model.getName());
@@ -170,6 +176,10 @@ public class BoxController extends SpringController
 			try
 			{
 				box = boxDatabase.find(id);
+				Calendar calendar = Calendar.getInstance();
+				Date today = calendar.getTime();
+				if (today.after(box.getDeadline()))
+					throw new Exception("倉庫已超過使用期限");
 				if (account.getId() != box.getOwner())
 					throw new Exception("No allow to use the box.");
 				item = boxDatabase.findItemByName(model.getName());

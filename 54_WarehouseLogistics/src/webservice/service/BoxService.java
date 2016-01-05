@@ -1,6 +1,8 @@
 package webservice.service;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import model.AccountModel;
@@ -75,11 +77,15 @@ public class BoxService
 		AccountDatabase accountDatabae = new AccountDatabase();
 		AccountModel account;
 		BoxDatabase boxDatabase = new BoxDatabase();
-		BoxModel box = new BoxModel();
+		BoxModel box;
 		ItemModel item;
 		ItemBoxModel itemBox;
 		account = accountDatabae.findByToken(model.getToken());
 		box = boxDatabase.find(id);
+		Calendar calendar = Calendar.getInstance();
+		Date today = calendar.getTime();
+		if (today.after(box.getDeadline()))
+			throw new Exception("倉庫已超過使用期限");
 		if (account.getId() != box.getOwner())
 			throw new Exception("Not allow to use the box.");
 		item = boxDatabase.findItemByName(model.getItemName());

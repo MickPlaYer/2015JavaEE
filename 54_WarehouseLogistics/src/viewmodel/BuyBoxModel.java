@@ -4,9 +4,9 @@ import org.hibernate.validator.constraints.NotBlank;
 
 public class BuyBoxModel
 {
-	@NotBlank()
+	@NotBlank(message = "請填入名稱")
 	private String name;
-	@NotBlank()
+	@NotBlank(message = "請填入地址")
 	private String location;
 	private String deadline;
 	

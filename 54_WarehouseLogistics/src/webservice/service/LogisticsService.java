@@ -2,6 +2,8 @@ package webservice.service;
 
 import java.awt.Dimension;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import model.AccountModel;
@@ -36,7 +38,7 @@ import webservice.responsemodel.WaybillWSModel;
 public class LogisticsService
 {
 	@RequestMapping(value = "/auto", method = RequestMethod.POST)
-	public int getMyBoxList(@RequestBody AutoDeliverModel model) throws Exception
+	public int autoDeliver(@RequestBody AutoDeliverModel model) throws Exception
 	{
 		AccountDatabase accountDatabae = new AccountDatabase();
 		AccountModel account;
@@ -68,7 +70,8 @@ public class LogisticsService
 		{
 			accountBoxIds.add(b.getId());
 		}
-		
+		Calendar calendar = Calendar.getInstance();
+		Date today = calendar.getTime();
 		for (ItemBoxModel i : list)
 		{
 			if (!boxIds.contains(i.getBoxId()))
@@ -78,6 +81,8 @@ public class LogisticsService
 				{
 					if (b.getId() == i.getBoxId())
 					{
+						if (today.after(b.getDeadline()))
+							throw new Exception("倉庫已超過使用期限");
 						from += b.getLocation() + ", ";
 					}
 				}
