@@ -1,4 +1,4 @@
-package viewmodel;
+package webservice.requestmodel;
 
 public class PayModel
 {

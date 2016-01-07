@@ -28,7 +28,7 @@ import exceptions.NullBoxException;
 import service.database.AccountDatabase;
 import service.database.BoxDatabase;
 import service.database.WaybillDatabase;
-import viewmodel.CheckPaymentModel;
+import webservice.requestmodel.CheckPaymentModel;
 import webservice.requestmodel.AutoDeliverModel;
 import webservice.requestmodel.BoxGetModel;
 import webservice.responsemodel.WaybillWSModel;

@@ -23,7 +23,7 @@ import model.AccountModel;
 import model.BoxModel;
 import service.database.BoxDatabase;
 import viewmodel.BuyBoxModel;
-import viewmodel.PayModel;
+import webservice.requestmodel.PayModel;
 
 @Controller()
 @RequestMapping("/main")
@@ -42,11 +42,9 @@ public class MainController extends SpringController
 	{
 		try (ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(CONTEXT_FILE))
 		{
-			// Object result = sessionCheck(httpSession);
-			// if (result.getClass().equals(ModelAndView.class))
-			// 	return (ModelAndView)result;
-			// AccountModel account = (AccountModel)result;
 			String name = (String)httpSession.getAttribute("name");
+			if (name == null)
+				throw new Exception("No Logging!");
 			String page = (String)context.getBean("mainPage");
 			return new ModelAndView(page, "Name", name);
 		}
