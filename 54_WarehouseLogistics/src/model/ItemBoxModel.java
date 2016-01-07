@@ -7,6 +7,19 @@ public class ItemBoxModel
 	private int boxId;
 	private int amount;
 
+	public ItemBoxModel()
+	{
+		// For Hibernate.
+	}
+	
+	public ItemBoxModel (int itemId, int boxId, int amount)
+	{
+		this.id = -1;
+		this.itemId = itemId;
+		this.boxId = boxId;
+		this.amount = amount;
+	}
+	
 	public int getId()
 	{
 		return id;

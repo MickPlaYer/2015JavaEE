@@ -10,6 +10,7 @@ public class WaybillModel
 	private String to;
 	private int status;
 	private int fee;
+	@SuppressWarnings("unused")
 	private String stsr;
 	
 	public int getId()

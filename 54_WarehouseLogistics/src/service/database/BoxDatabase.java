@@ -12,6 +12,8 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.service.ServiceRegistry;
 
 import exceptions.NullBoxException;
+import exceptions.NullItemBoxException;
+import exceptions.NullItemException;
 import model.BoxModel;
 import model.ItemBoxModel;
 import model.ItemModel;
@@ -33,7 +35,7 @@ public class BoxDatabase
 		sessionFactory = config.buildSessionFactory(serviceRegistry);
 	}
 	
-	public void create(BoxModel box) throws Exception
+	public void create(BoxModel box)
 	{
 		session = sessionFactory.openSession();
 		transaction = session.beginTransaction();
@@ -42,7 +44,7 @@ public class BoxDatabase
 		session.close();
 	}
 	
-	public void update(int id, BoxModel box) throws Exception
+	public void update(int id, BoxModel box)
 	{
 		box.setId(id);
 		session = sessionFactory.openSession();
@@ -52,7 +54,7 @@ public class BoxDatabase
 		session.close();	
 	}
 	
-	public void delete(int id) throws Exception
+	public void delete(int id)
 	{
 		BoxModel box = new BoxModel();
 		box.setId(id);
@@ -63,7 +65,7 @@ public class BoxDatabase
 		session.close();	
 	}
 	
-	public BoxModel find(int id) throws Exception
+	public BoxModel find(int id) throws NullBoxException
 	{
 		BoxModel box = new BoxModel();
 		session = sessionFactory.openSession();
@@ -88,7 +90,7 @@ public class BoxDatabase
 	}*/
 	
 	@SuppressWarnings("unchecked")
-	public List<BoxModel> list() throws Exception
+	public List<BoxModel> list() throws NullBoxException
 	{
 		List<BoxModel> list;
 		session = sessionFactory.openSession();
@@ -101,7 +103,7 @@ public class BoxDatabase
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<BoxModel> listByOwner(int owner) throws Exception
+	public List<BoxModel> listByOwner(int owner) throws NullBoxException
 	{
 		List<BoxModel> list;
 		session = sessionFactory.openSession();
@@ -115,7 +117,7 @@ public class BoxDatabase
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<ItemAmountModel> listItemAmount(BoxModel box) throws Exception
+	public List<ItemAmountModel> listItemAmount(BoxModel box) throws NullItemException
 	{
 		List<ItemAmountModel> list;
 		session = sessionFactory.openSession();
@@ -128,11 +130,13 @@ public class BoxDatabase
 				+ " ORDER BY Item_in_box.iid"
 				).addEntity(ItemAmountModel.class).list();
 		session.close();
+		if (list.isEmpty())
+			throw new NullItemException();
 		return list;
 	}
 	
 	@SuppressWarnings("unchecked")
-	public ItemAmountModel findItemAmount(int id, int iid)
+	public ItemAmountModel findItemAmount(int id, int iid) throws NullItemException
 	{
 		List<ItemAmountModel> list;
 		session = sessionFactory.openSession();
@@ -144,11 +148,47 @@ public class BoxDatabase
 				+ " AND Item.id = " + iid
 				+ " AND Box.id = " + id).addEntity(ItemAmountModel.class).list();
 		session.close();
+		if (list.isEmpty())
+			throw new NullItemException();
 		return list.get(0);
+	}
+
+	public ItemModel createItem(ItemModel item)
+	{
+		session = sessionFactory.openSession();
+		transaction = session.beginTransaction();
+		session.save(item);
+		transaction.commit();
+		session.close();
+		return item;
+	}
+	
+	public ItemModel findItem(int id) throws NullItemException
+	{
+		ItemModel item = new ItemModel();
+		session = sessionFactory.openSession();
+		item = (ItemModel)session.get(ItemModel.class, id);
+		session.close();
+		if (item == null)
+			throw new NullItemException();
+		return item;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<ItemModel> listItem()
+	{
+		List<ItemModel> list;
+		session = sessionFactory.openSession();
+		criteria = session.createCriteria(ItemModel.class);
+		list = criteria.list();
+		session.close();
+		if (list.isEmpty())
+			return null;
+		return list;
 	}
 	
 	@SuppressWarnings("unchecked")
-	public ItemModel findItemByName(String name)
+	public ItemModel findItemByName(String name) throws NullItemException
 	{
 		List<ItemModel> list;
 		session = sessionFactory.openSession();
@@ -157,17 +197,8 @@ public class BoxDatabase
 		list = criteria.list();
 		session.close();
 		if (list.isEmpty())
-			return null;
+			throw new NullItemException();
 		return list.get(0);
-	}
-
-	public void createItem(ItemModel item)
-	{
-		session = sessionFactory.openSession();
-		transaction = session.beginTransaction();
-		session.save(item);
-		transaction.commit();
-		session.close();
 	}
 
 	public void createItemBox(ItemBoxModel itemBox)
@@ -177,21 +208,6 @@ public class BoxDatabase
 		session.save(itemBox);
 		transaction.commit();
 		session.close();
-	}
-
-	@SuppressWarnings("unchecked")
-	public ItemBoxModel findItemBox(int bid, int iid)
-	{
-		List<ItemBoxModel> list;
-		session = sessionFactory.openSession();
-		Criteria criteria = session.createCriteria(ItemBoxModel.class);
-		criteria.add(Restrictions.eq("boxId", bid));
-		criteria.add(Restrictions.eq("itemId", iid));
-		list = criteria.list();
-		session.close();
-		if (list.isEmpty())
-			return null;
-		return list.get(0);
 	}
 
 	public void updateItemBox(ItemBoxModel itemBox)
@@ -211,27 +227,20 @@ public class BoxDatabase
 		transaction.commit();
 		session.close();
 	}
-
-	public ItemModel findItem(int id)
-	{
-		ItemModel box = new ItemModel();
-		session = sessionFactory.openSession();
-		box = (ItemModel)session.get(ItemModel.class, id);
-		session.close();
-		return box;
-	}
-
+	
 	@SuppressWarnings("unchecked")
-	public List<ItemModel> listItem()
+	public ItemBoxModel findItemBox(int bid, int iid) throws NullItemBoxException
 	{
-		List<ItemModel> list;
+		List<ItemBoxModel> list;
 		session = sessionFactory.openSession();
-		criteria = session.createCriteria(ItemModel.class);
+		Criteria criteria = session.createCriteria(ItemBoxModel.class);
+		criteria.add(Restrictions.eq("boxId", bid));
+		criteria.add(Restrictions.eq("itemId", iid));
 		list = criteria.list();
 		session.close();
 		if (list.isEmpty())
-			return null;
-		return list;
+			throw new NullItemBoxException();
+		return list.get(0);
 	}
 
 	public void updateItemBoxList(List<ItemBoxModel> updateList)

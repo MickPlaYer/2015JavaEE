@@ -4,16 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import javax.servlet.http.HttpSession;
-
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.validation.FieldError;
 import org.springframework.web.servlet.ModelAndView;
-
-import exceptions.NullAccountException;
-import exceptions.SessionFailException;
-import model.AccountModel;
-import service.database.AccountDatabase;
 
 public class SpringController
 {
@@ -21,14 +14,12 @@ public class SpringController
 	protected final String DB_ERROR = "error.database";
 	protected final String ERROR_MODEL = "ErrorModel";
 	protected ResourceBundle resource = ResourceBundle.getBundle("resources.MessageDictionary");
+	protected ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(CONTEXT_FILE);
 	protected String errorPage;
 	
 	public SpringController(String errorPage)
 	{
-		try (ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(CONTEXT_FILE))
-		{
-			this.errorPage = (String)context.getBean(errorPage);
-		}
+		this.errorPage = (String)context.getBean(errorPage);
 	}
 	
 	protected ModelAndView getErrorModelAndView(Exception exception, String error)
@@ -40,21 +31,16 @@ public class SpringController
 		return new ModelAndView(errorPage, ERROR_MODEL, feeErrors);
 	}
 	
-	/*protected AccountModel sessionCheck(HttpSession httpSession) throws Exception
+	protected ModelAndView getErrorMessageModelAndView(Exception exception)
 	{
-		AccountDatabase accountDatabase = new AccountDatabase();
-		AccountModel account;
-		String name = (String)httpSession.getAttribute("name");
-		String session = (String)httpSession.getAttribute("session");
-		if (name == null || session == null)
-			throw new SessionFailException();
-		account = accountDatabase.findByName(name);
-		if  (!account.getSession().equals(session))
-			throw new SessionFailException();
-		return account;
-	}*/
+		List<FieldError> feeErrors = new ArrayList<FieldError>();
+		String className = this.getClass().getName();
+		String errorTip = resource.getString(exception.getMessage());
+		feeErrors.add(new FieldError(className, exception.getMessage(), errorTip));
+		return new ModelAndView(errorPage, ERROR_MODEL, feeErrors);
+	}
 	
-	protected Object sessionCheck(HttpSession httpSession)
+	/*protected Object sessionCheck(HttpSession httpSession)
 	{
 		AccountModel account;
 		try
@@ -73,5 +59,5 @@ public class SpringController
 		catch (Exception exception)
 		{ return getErrorModelAndView(exception, DB_ERROR);	}
 		return account;
-	}
+	}*/
 }

@@ -15,16 +15,16 @@
 			<table class="navTable">
 				<tr>
 					<td>倉庫名稱：</td>
-					<td><input class="inputBox" type="text" name="name"/></td>
+					<td><input class="inputBox" type="text" name="boxName"/></td>
 				</tr>
 				<tr>
 					<td>倉庫地點：</td>
-					<td><input class="inputBox" type="text" name="location"/></td>
+					<td><input class="inputBox" type="text" name="boxLocation"/></td>
 				</tr>
 				<tr>
 					<td>購買期限：</td>
 					<td>
-						<select name="deadline">
+						<select name="boxPeriod">
 	  						<option value="year">一年 $500</option>
 	  						<option value="helf-year">半年 $350</option>
 	  						<option value="month">一個月 $100</option>

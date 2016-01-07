@@ -1,6 +1,6 @@
 package exceptions;
 
-public class AccountExistException extends Exception
+public class AccountExistException extends WarehouseLogisticsException
 {
 	public AccountExistException()
 	{

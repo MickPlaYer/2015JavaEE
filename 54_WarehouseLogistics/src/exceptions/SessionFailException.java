@@ -1,6 +1,6 @@
 package exceptions;
 
-public class SessionFailException extends Exception
+public class SessionFailException extends WarehouseLogisticsException
 {
 	public SessionFailException()
 	{

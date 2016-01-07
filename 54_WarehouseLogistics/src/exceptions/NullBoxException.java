@@ -1,6 +1,6 @@
 package exceptions;
 
-public class NullBoxException extends Exception
+public class NullBoxException extends WarehouseLogisticsException
 {
 	public NullBoxException()
 	{

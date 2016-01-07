@@ -17,15 +17,21 @@
 					<td>名稱：</td>
 					<td>
 						<select class="inputBox" name="name">
-							#foreach(${Item} in ${ItemList})
-								<option value="${Item.name}">${Item.name} (${Item.amount})</option>
-							#end
+						#foreach(${Item} in ${ItemList})
+							<option value="${Item.name}">${Item.name} (${Item.amount})</option>
+						#end
 						</select>
 					</td>
 				</tr>
 				<tr>
 					<td>數量：</td>
-					<td><input class="inputBox" type="number" min="1" value="${ItemList[0].amount}" name="amount"/></td>
+					<td>
+					#if(!$ItemList)
+						<input class="inputBox" type="number" min="1" value="${ItemList[0].amount}" name="amount"/>
+					#else
+						<input class="inputBox" type="number" min="1" value="1" name="amount"/>
+					#end
+					</td>
 				</tr>
 			</table>
 			<input type="submit" value="移除"/>

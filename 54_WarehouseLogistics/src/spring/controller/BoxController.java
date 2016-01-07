@@ -1,28 +1,28 @@
 package spring.controller;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
-import exceptions.NullBoxException;
+import exceptions.BoxDuplicateActivateException;
+import exceptions.NullItemException;
+import exceptions.WarehouseLogisticsException;
 import model.AccountModel;
 import model.BoxModel;
-import model.ItemBoxModel;
-import model.ItemModel;
 import model.ItemAmountModel;
+import service.AccountService;
+import service.BoxService;
 import service.database.BoxDatabase;
 import viewmodel.AddItemModel;
 
@@ -38,260 +38,127 @@ public class BoxController extends SpringController
 		super("boxErrorPage");
 	}
 
-	@RequestMapping(value = "/addItem/{id}/{iid}", method = RequestMethod.GET)
-	public ModelAndView getAddItemWithIdPage(@PathVariable("id") int id, @PathVariable("iid") int iid) throws Exception
+	@RequestMapping(value = "/addItem/{boxId}/{itemId}", method = RequestMethod.GET)
+	public ModelAndView getAddItemWithIdPage(@PathVariable("boxId") int boxId, @PathVariable("itemId") int itemId) throws Exception
 	{
-		try (ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(CONTEXT_FILE))
-		{
-			String page = (String)context.getBean("addItemPage");
-			return getModifyItemPageWithItem(id, iid, page);
-		}
+		String page = (String)context.getBean("addItemPage");
+		return getModifyItemPageWithItem(boxId, itemId, page);
 	}
 	
 	@RequestMapping(value = "/addItem/{id}", method = RequestMethod.GET)
-	public ModelAndView getAddItemPage(@PathVariable("id") int id) throws Exception
+	public ModelAndView getAddItemPage(@PathVariable("id") int boxId) throws Exception
 	{
-		try (ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(CONTEXT_FILE))
-		{
-			String page = (String)context.getBean("addItemPage");
-			return getModifyItemPage(id, page);
-		}
+		String page = (String)context.getBean("addItemPage");
+		return getModifyItemPage(boxId, page);
 	}
 	
 	@RequestMapping(value = "/addItem/{id}", method = RequestMethod.POST)
-	public ModelAndView addItem(@Valid AddItemModel model, BindingResult bindingResult, @PathVariable("id") int id) throws Exception
+	public ModelAndView addItem(@Valid AddItemModel model, BindingResult bindingResult, @PathVariable("id") int boxId) throws Exception
 	{
-		try (ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(CONTEXT_FILE))
-		{
-			if (bindingResult.hasErrors())
-				return new ModelAndView(errorPage, ERROR_MODEL, bindingResult.getFieldErrors());
-			Object result = sessionCheck(httpSession);
-			if (result.getClass().equals(ModelAndView.class))
-				return (ModelAndView) result;
-			AccountModel account = (AccountModel)result;
-			BoxDatabase boxDatabase = new BoxDatabase();
-			BoxModel box;
-			ItemModel item;
-			ItemBoxModel itemBox;
-			try
-			{
-				box = boxDatabase.find(id);
-				Calendar calendar = Calendar.getInstance();
-				Date today = calendar.getTime();
-				if (today.after(box.getDeadline()))
-					throw new Exception("倉庫已超過使用期限");
-				if (account.getId() != box.getOwner())
-					throw new Exception("No allow to use the box.");
-				item = boxDatabase.findItemByName(model.getName());
-				if (item == null)
-				{
-					item = new ItemModel();
-					item.setName(model.getName());
-					boxDatabase.createItem(item);
-					item = boxDatabase.findItemByName(model.getName());
-					itemBox = new ItemBoxModel();
-					itemBox.setItemId(item.getId());
-					itemBox.setBoxId(id);
-					itemBox.setAmount(model.getAmount());
-					boxDatabase.createItemBox(itemBox);
-				}
-				else
-				{
-					itemBox = boxDatabase.findItemBox(id, item.getId());
-					if (itemBox == null)
-					{
-						itemBox = new ItemBoxModel();
-						itemBox.setItemId(item.getId());
-						itemBox.setBoxId(id);
-						itemBox.setAmount(model.getAmount());
-						boxDatabase.createItemBox(itemBox);
-					}
-					else
-					{
-						int amount = itemBox.getAmount();
-						amount += model.getAmount();
-						itemBox.setAmount(amount);
-						boxDatabase.updateItemBox(itemBox);
-					}
-				}
-			}
-			catch (NullBoxException exception)
-			{ return getErrorModelAndView(exception, exception.getMessage()); }
-			catch (Exception exception)
-			{ return getErrorModelAndView(exception, DB_ERROR);	}
-			String page = (String)context.getBean("addItemSuccess");
-			return new ModelAndView("redirect:/" + page + id);
-		}
+		if (bindingResult.hasErrors())
+			return new ModelAndView(errorPage, ERROR_MODEL, bindingResult.getFieldErrors());
+		AccountModel account = new AccountService().sessionCheck(httpSession);
+		BoxService boxService = new BoxService(account.getId());
+		boxService.addItemToBox(boxId, model);
+		String page = (String)context.getBean("addItemSuccess");
+		return new ModelAndView("redirect:/" + page + boxId);
 	}
 	
-	@RequestMapping(value = "/removeItem/{id}/{iid}", method = RequestMethod.GET)
-	public ModelAndView getRemoveItemWithIdPage(@PathVariable("id") int id, @PathVariable("iid") int iid) throws Exception
+	@RequestMapping(value = "/removeItem/{boxId}/{itemId}", method = RequestMethod.GET)
+	public ModelAndView getRemoveItemWithIdPage(@PathVariable("boxId") int boxId, @PathVariable("itemId") int itemId) throws Exception
 	{
-		try (ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(CONTEXT_FILE))
-		{
-			String page = (String)context.getBean("removeItemWithIdPage");
-			return getModifyItemPageWithItem(id, iid, page);
-		}
+		String page = (String)context.getBean("removeItemWithIdPage");
+		return getModifyItemPageWithItem(boxId, itemId, page);
 	}
 	
 	@RequestMapping(value = "/removeItem/{id}", method = RequestMethod.GET)
-	public ModelAndView getRemoveItemPage(@PathVariable("id") int id) throws Exception
+	public ModelAndView getRemoveItemPage(@PathVariable("id") int boxId) throws Exception
 	{
-		try (ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(CONTEXT_FILE))
-		{
-			BoxDatabase boxDatabase = new BoxDatabase();
-			BoxModel box;
-			List<ItemAmountModel> itemList;
-			try
-			{
-				box = boxDatabase.find(id);
-				itemList = boxDatabase.listItemAmount(box);
-			}
-			catch (NullBoxException exception)
-			{ return getErrorModelAndView(exception, exception.getMessage()); }
-			catch (Exception exception)
-			{ return getErrorModelAndView(exception, DB_ERROR);	}
-			String page = (String)context.getBean("removeItemPage");
-			ModelAndView view = getModifyItemPage(id, page);
-			view.addObject("ItemList", itemList);
-			return view;
-		}
+		AccountModel account = new AccountService().sessionCheck(httpSession);
+		BoxService boxService = new BoxService(account.getId());
+		List<ItemAmountModel> itemList = new ArrayList<ItemAmountModel>();
+		try { itemList = boxService.getItemAmountList(boxId); }
+		catch (NullItemException exception)	{ }
+		String page = (String)context.getBean("removeItemPage");
+		ModelAndView view = getModifyItemPage(boxId, page);
+		view.addObject("ItemList", itemList);
+		return view;
 	}
 	
 	@RequestMapping(value = "/removeItem/{id}", method = RequestMethod.POST)
-	public ModelAndView removeItem(@Valid AddItemModel model, BindingResult bindingResult, @PathVariable("id") int id) throws Exception
+	public ModelAndView removeItem(@Valid AddItemModel model, BindingResult bindingResult, @PathVariable("id") int boxId) throws Exception
 	{
-		try (ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(CONTEXT_FILE))
-		{
-			if (bindingResult.hasErrors())
-				return new ModelAndView(errorPage, ERROR_MODEL, bindingResult.getFieldErrors());
-			Object result = sessionCheck(httpSession);
-			if (result.getClass().equals(ModelAndView.class))
-				return (ModelAndView) result;
-			AccountModel account = (AccountModel)result;
-			BoxDatabase boxDatabase = new BoxDatabase();
-			BoxModel box;
-			ItemModel item;
-			ItemBoxModel itemBox;
-			try
-			{
-				box = boxDatabase.find(id);
-				Calendar calendar = Calendar.getInstance();
-				Date today = calendar.getTime();
-				if (today.after(box.getDeadline()))
-					throw new Exception("倉庫已超過使用期限");
-				if (account.getId() != box.getOwner())
-					throw new Exception("No allow to use the box.");
-				item = boxDatabase.findItemByName(model.getName());
-				if (item == null)
-					throw new Exception("Item not exist.");
-				itemBox = boxDatabase.findItemBox(id, item.getId());
-				if (itemBox == null)
-					throw new Exception("Item not exist in the box.");
-				if (model.getAmount() > itemBox.getAmount())
-					throw new Exception("Item not enough in the box.");
-				itemBox.addAmount(-model.getAmount());
-				if (itemBox.getAmount() == 0)
-					boxDatabase.deleteItemBox(itemBox);
-				else if (itemBox.getAmount() > 0)
-					boxDatabase.updateItemBox(itemBox);
-				else
-					throw new Exception("BoxController Error");
-			}
-			catch (NullBoxException exception)
-			{ return getErrorModelAndView(exception, exception.getMessage()); }
-			catch (Exception exception)
-			{ return getErrorModelAndView(exception, DB_ERROR);	}
-			String page = (String)context.getBean("removeItemSuccess");
-			return new ModelAndView("redirect:/" + page + id);
-		}
+		if (bindingResult.hasErrors())
+			return new ModelAndView(errorPage, ERROR_MODEL, bindingResult.getFieldErrors());
+		AccountModel account = new AccountService().sessionCheck(httpSession);
+		BoxService boxService = new BoxService(account.getId());
+		boxService.removeItemFromBox(boxId, model);
+		String page = (String)context.getBean("removeItemSuccess");
+		return new ModelAndView("redirect:/" + page + boxId);
 	}
 	
-	private ModelAndView getModifyItemPageWithItem(int id, int iid, String page) throws Exception
+	private ModelAndView getModifyItemPageWithItem(int boxId, int itemId, String page) throws Exception
 	{
 		ModelAndView view = new ModelAndView(page);
 		String readOnly = "readonly";
 		BoxDatabase boxDatabase = new BoxDatabase();
 		ItemAmountModel item;
-		try
-		{
-			item = boxDatabase.findItemAmount(id, iid);
-			view.addObject("Item", item);
-		}
-		catch (Exception exception)
-		{ return getErrorModelAndView(exception, DB_ERROR);	}
-		view.addObject("BoxId", id);
+		item = boxDatabase.findItemAmount(boxId, itemId);
+		view.addObject("Item", item);
+		view.addObject("BoxId", boxId);
 		view.addObject("ReadOnly", readOnly);
 		return view;
 	}
 
-	private ModelAndView getModifyItemPage(int id, String page)
+	private ModelAndView getModifyItemPage(int boxId, String page)
 	{
 		ModelAndView view = new ModelAndView(page);
 		String readOnly = "";
 		ItemAmountModel item = new ItemAmountModel();
 		item.setName("");
 		view.addObject("Item", item);			
-		view.addObject("BoxId", id);			
+		view.addObject("BoxId", boxId);			
 		view.addObject("ReadOnly", readOnly);
 		return view;
 	}
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public ModelAndView getMyBox(@PathVariable("id") int id) throws Exception
+	public ModelAndView getMyBox(@PathVariable("id") int boxId) throws Exception
 	{
-		try (ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(CONTEXT_FILE))
-		{
-			Object result = sessionCheck(httpSession);
-			if (result.getClass().equals(ModelAndView.class))
-				return (ModelAndView) result;
-			AccountModel account = (AccountModel)result;
-			BoxDatabase boxDatabase = new BoxDatabase();
-			List<ItemAmountModel> itemList = new ArrayList<ItemAmountModel>();
-			BoxModel box;
-			try
-			{
-				box = boxDatabase.find(id);
-				if (account.getId() != box.getOwner())
-					throw new Exception("No allow to view the box.");
-				itemList = boxDatabase.listItemAmount(box);
-			}
-			catch (NullBoxException exception)
-			{ return getErrorModelAndView(exception, exception.getMessage()); }
-			catch (Exception exception)
-			{ return getErrorModelAndView(exception, DB_ERROR);	}
-			String page = (String)context.getBean("myBoxItemPage");
-			ModelAndView view = new ModelAndView(page);
-			view.addObject("Box", box);
-			view.addObject("ItemList", itemList);
-			return view;
-		}
+		AccountModel account = new AccountService().sessionCheck(httpSession);
+		BoxService boxService = new BoxService(account.getId());
+		BoxModel box = boxService.getBoxWithoutCheck(boxId);
+		List<ItemAmountModel> itemList = new ArrayList<ItemAmountModel>();
+		try { itemList = boxService.getItemAmountList(box); }
+		catch (NullItemException exception)	{ }
+		String page = (String)context.getBean("myBoxItemPage");
+		ModelAndView view = new ModelAndView(page);
+		view.addObject("Box", box);
+		view.addObject("ItemList", itemList);
+		return view;
+	}
+
+	@RequestMapping(value = "/{id}/{hashCode}", method = RequestMethod.GET)
+	public ModelAndView activateBox(@PathVariable("id") int boxId, @PathVariable("hashCode") String hashCode) throws Exception
+	{
+		AccountModel account = new AccountService().sessionCheck(httpSession);
+		BoxService boxService = new BoxService(account.getId());
+		try { boxService.activateBox(boxId, hashCode); }
+		catch (BoxDuplicateActivateException exception) { }
+		String page = (String)context.getBean("removeItemSuccess");
+		return new ModelAndView("redirect:/" + page + boxId);
 	}
 	
-	// This is for debug use.
-	@RequestMapping(value = "/{id}/{hashCode}", method = RequestMethod.GET)
-	public ModelAndView activeBox(@PathVariable("id") int id, @PathVariable("hashCode") String hashCode) throws Exception
+	@ExceptionHandler(WarehouseLogisticsException.class)
+	public ModelAndView handleNullAccountException(WarehouseLogisticsException exception)
 	{
-		try (ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(CONTEXT_FILE))
-		{
-			BoxDatabase boxDatabase = new BoxDatabase();
-			BoxModel box;
-			try
-			{
-				box = boxDatabase.find(id);
-				if (box.getHashCode() == null)
-					throw new Exception("The box has actived.");
-				if (!box.getHashCode().equals(hashCode))
-					throw new Exception("Error hash code.");
-				box.setHashCode(null);
-				boxDatabase.update(id, box);
-			}
-			catch (NullBoxException exception)
-			{ return getErrorModelAndView(exception, exception.getMessage()); }
-			catch (Exception exception)
-			{ return getErrorModelAndView(exception, DB_ERROR);	}
-			String page = (String)context.getBean("removeItemSuccess");
-			return new ModelAndView("redirect:/" + page + id);
-		}
+		return getErrorMessageModelAndView(exception);
+	}
+	
+	@ExceptionHandler(Exception.class)
+	public ModelAndView handleException(Exception exception)
+	{ 
+		exception.printStackTrace();
+		return getErrorModelAndView(exception, DB_ERROR);
 	}
 }

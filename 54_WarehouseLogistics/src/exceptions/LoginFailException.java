@@ -1,6 +1,6 @@
 package exceptions;
 
-public class LoginFailException extends Exception
+public class LoginFailException extends WarehouseLogisticsException
 {
 	public LoginFailException()
 	{
