@@ -6,8 +6,9 @@ import org.hibernate.validator.constraints.NotBlank;
 
 import webservice.requestmodel.PayModel;
 
-public class BuyBoxSalesman
+public class BoxSalesman
 {
+	private int boxId;
 	@NotBlank(message = "{error.boxName.empty}")
 	private String boxName;
 	@NotBlank(message = "{error.boxLocation.empty}")
@@ -15,7 +16,17 @@ public class BuyBoxSalesman
 	private String boxPeriod;
 	private BoxModel box;
 	private PayModel pay;
-	
+
+	public int getBoxId()
+	{
+		return boxId;
+	}
+
+	public void setBoxId(int boxId)
+	{
+		this.boxId = boxId;
+	}
+
 	public String getBoxName()
 	{
 		return boxName;

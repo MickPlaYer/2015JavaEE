@@ -13,7 +13,8 @@
 	</bean>
 
 	<bean id="warehouseURL" class="java.lang.String">
-		<constructor-arg type="String" value="http://ilab.csie.ntut.edu.tw:8080/54_WarehouseLogistics/spring/box"/>
+		<!-- <constructor-arg type="String" value="http://ilab.csie.ntut.edu.tw:8080/54_WarehouseLogistics/spring/box"/> -->
+		<constructor-arg type="String" value="http://localhost:8081/54_WarehouseLogistics/spring/box"/>
 	</bean>
 	
 	<bean id="bankURL" class="java.lang.String">
@@ -47,6 +48,9 @@
     
     <bean id="buyBoxPage" class="java.lang.String">
 		<constructor-arg type="String" value="spring/main/buyBox"/>
+    </bean>
+    <bean id="renewBoxPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/main/renewBox"/>
     </bean>
     <bean id="myBoxItemPage" class="java.lang.String">
 		<constructor-arg type="String" value="spring/main/myBoxItem"/>

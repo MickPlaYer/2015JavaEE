@@ -42,9 +42,7 @@ public class BoxController extends SpringController
 	@ModelAttribute("BeforeDo")
 	public void beforeDo(HttpSession httpSession)
 	{
-		System.out.println("Box Controller Before Do");
 		setupHibernateConfig(httpSession);
-		System.out.println("Box Controller Before Do Done");
 	}
 	
 	@RequestMapping(value = "/addItem/{boxId}/{itemId}", method = RequestMethod.GET)
@@ -136,7 +134,7 @@ public class BoxController extends SpringController
 	{
 		AccountModel account = new AccountService(sessionFactory).sessionCheck(httpSession);
 		BoxService boxService = new BoxService(account.getId(), sessionFactory);
-		BoxModel box = boxService.getBoxWithoutCheck(boxId);
+		BoxModel box = boxService.findBox(boxId);
 		List<ItemAmountModel> itemList = new ArrayList<ItemAmountModel>();
 		try { itemList = boxService.getItemAmountList(box); }
 		catch (NullItemException exception)	{ }

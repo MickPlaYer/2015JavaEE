@@ -47,9 +47,7 @@ public class LogisticsController extends SpringController
 	@ModelAttribute("BeforeDo")
 	public void beforeDo(HttpSession httpSession)
 	{
-		System.out.println("Box Controller Before Do");
 		setupHibernateConfig(httpSession);
-		System.out.println("Box Controller Before Do Done");
 	}
 
 	@RequestMapping(value = "/{method}", method = RequestMethod.GET)

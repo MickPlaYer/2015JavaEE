@@ -10,16 +10,18 @@ import org.hibernate.exception.ConstraintViolationException;
 
 import converter.MD5Converter;
 import service.database.BoxDatabase;
+import viewmodel.BoxRenewer;
 import viewmodel.ModifyItemModel;
 import viewmodel.BoxToBoxModel;
 import viewmodel.BoxToLocationModel;
-import viewmodel.BuyBoxSalesman;
+import viewmodel.BoxSalesman;
 import viewmodel.ItemToBoxModel;
 import webservice.requestmodel.PayModel;
 import exceptions.BoxActivateFailException;
 import exceptions.BoxDuplicateActivateException;
 import exceptions.BoxPeriodException;
 import exceptions.BoxPrivilegeException;
+import exceptions.BoxUnactivatedException;
 import exceptions.IllegalPeriodException;
 import exceptions.ItemNotEnoughException;
 import exceptions.NullBoxException;
@@ -72,15 +74,44 @@ public class BoxService
 		return boxlist;
 	}
 	
-	public BuyBoxSalesman buyNewBox(BuyBoxSalesman salesman) throws Exception
+	public BoxSalesman buyNewBox(BoxSalesman salesman) throws Exception
 	{
 		BoxModel box = new BoxModel();
 		PayModel pay = new PayModel();
 		String hashCode = "NiSeMoNo" + salesman.getBoxName() + new Date().toString();
 		hashCode = MD5Converter.convert(hashCode);
+		Date date = setupPeriodTypeAndPrice(new Date(), salesman.getBoxPeriod(), pay);
+		box.setOwner(accountId);
+		box.setName(salesman.getBoxName());
+		box.setLocation(salesman.getBoxLocation());
+		box.setDeadline(date);
+		box.setHashCode(hashCode);
+		boxDatabase.create(box);
+		salesman.setBox(box);
+		salesman.setPay(pay);
+		return salesman;
+	}
+	
+	public BoxRenewer renewBox(BoxRenewer renewer) throws Exception
+	{
+		BoxModel box = getBoxWithoutDateCheck(renewer.getBoxId());
+		PayModel pay = new PayModel();
+		String hashCode = "NekoMoNo" + box.getName() + new Date().toString();
+		hashCode = MD5Converter.convert(hashCode);
+		Date date = setupPeriodTypeAndPrice(box.getDeadline(), renewer.getBoxPeriod(), pay);
+		box.setDeadline(date);
+		box.setHashCode(hashCode);
+		boxDatabase.update(renewer.getBoxId(), box);
+		renewer.setBox(box);
+		renewer.setPay(pay);
+		return renewer;
+	}
+
+	private Date setupPeriodTypeAndPrice(Date date, String period, PayModel pay) throws IllegalPeriodException
+	{
 		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(new Date());
-		switch (salesman.getBoxPeriod())
+		calendar.setTime(date);
+		switch (period)
 		{
 			case "year":
 				calendar.add(Calendar.YEAR, 1);
@@ -97,15 +128,7 @@ public class BoxService
 			default:
 				throw new IllegalPeriodException();
 		}
-		box.setOwner(accountId);
-		box.setName(salesman.getBoxName());
-		box.setLocation(salesman.getBoxLocation());
-		box.setDeadline(calendar.getTime());
-		box.setHashCode(hashCode);
-		boxDatabase.create(box);
-		salesman.setBox(box);
-		salesman.setPay(pay);
-		return salesman;
+		return calendar.getTime();
 	}
 	
 	public void addItemToBox(int boxId, ModifyItemModel model) throws Exception
@@ -159,6 +182,15 @@ public class BoxService
 			throw new ItemNotEnoughException();
 	}
 	
+
+	public BoxModel getBoxWithoutDateCheck(int boxId) throws Exception
+	{
+		BoxModel box = boxDatabase.find(boxId);
+		if (accountId != box.getOwner())
+			throw new BoxPrivilegeException();
+		return box;
+	}
+	
 	public BoxModel getBox(int boxId) throws Exception
 	{
 		BoxModel box = boxDatabase.find(boxId);
@@ -168,10 +200,12 @@ public class BoxService
 			throw new BoxPeriodException();
 		if (accountId != box.getOwner())
 			throw new BoxPrivilegeException();
+		if (box.getHashCode() != null)
+			throw new BoxUnactivatedException();
 		return box;
 	}
 
-	public BoxModel getBoxWithoutCheck(int boxId) throws Exception
+	public BoxModel findBox(int boxId) throws Exception
 	{
 		return boxDatabase.find(boxId);
 	}
@@ -202,7 +236,7 @@ public class BoxService
 	{
 		return boxDatabase.listItem();
 	}
-
+	
 	public ItemModel findItem(int itemId) throws NullItemException
 	{
 		return boxDatabase.findItem(itemId);

@@ -13,30 +13,31 @@
 		
 		<table class="navTable" border="1px" cellspacing="0px" cellpadding="6px">
 			<tr>
-				<th>序號</th>
-				<th>名稱</th>
-				<th>地點</th>
-				<th>期限</th>
+				<th>倉庫序號</th>
+				<th>倉庫名稱</th>
+				<th>倉庫地點</th>
+				<th>倉庫期限</th>
 				<th>查看貨物</th>
 				<th>新增貨物</th>
 				<th>移除貨物</th>
 			</tr>
 			#foreach( $Box in $BoxList )
 			<tr>
-				<td>$Box.id</td>
+				<td style="text-align: right">$Box.id</td>
 				<td>$Box.name</td>
 				<td>$Box.location</td>
 				<td>$Box.deadline</td>
 				<td><button onclick="window.location.href='../box/$Box.id'">查看貨物</button></td>
 				<td><button onclick="window.location.href='../box/addItem/$Box.id'">新增貨物</button></td>
 				<td><button onclick="window.location.href='../box/removeItem/$Box.id'">移除貨物</button></td>
-			</tr> 
+			</tr>
 			#end
 			<tr>
 				<td colspan="7">
 					<button onclick="window.location.href='./buyBox'">購買新的倉庫</button>
+					<button onclick="window.location.href='./renewBox'">倉庫續約</button>
 				</td>
-			</tr> 
+			</tr>
 		</table>
 		<br>
 		<a href="#springMessage("mainURL")">#springMessage("back")</a>

@@ -39,9 +39,7 @@ public class AccountController extends SpringController
 	@ModelAttribute("BeforeDo")
 	public void beforeDo(HttpSession httpSession)
 	{
-		System.out.println("Box Controller Before Do");
 		setupHibernateConfig(httpSession);
-		System.out.println("Box Controller Before Do Done");
 	}
 	
 	@RequestMapping(value = "/register", method = RequestMethod.GET)

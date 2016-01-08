@@ -21,7 +21,8 @@ import model.AccountModel;
 import model.BoxModel;
 import service.AccountService;
 import service.BoxService;
-import viewmodel.BuyBoxSalesman;
+import viewmodel.BoxRenewer;
+import viewmodel.BoxSalesman;
 import webservice.requestmodel.PayModel;
 
 @Controller()
@@ -39,9 +40,7 @@ public class MainController extends SpringController
 	@ModelAttribute("BeforeDo")
 	public void beforeDo(HttpSession httpSession)
 	{
-		System.out.println("Box Controller Before Do");
 		setupHibernateConfig(httpSession);
-		System.out.println("Box Controller Before Do Done");
 	}
 	
 	@RequestMapping(method = RequestMethod.GET)
@@ -81,6 +80,17 @@ public class MainController extends SpringController
 		return new ModelAndView(page);
 	}
 	
+	@RequestMapping(value = "/renewBox", method = RequestMethod.GET)
+	public ModelAndView renewBox() throws Exception
+	{
+		AccountModel account = new AccountService(sessionFactory).sessionCheck(httpSession);
+		List<BoxModel> boxlist = new BoxService(account.getId(), sessionFactory).getActivatedBoxList();
+		String page = (String)context.getBean("renewBoxPage");
+		ModelAndView view = new ModelAndView(page);
+		view.addObject("BoxList", boxlist);
+		return view;
+	}
+	
 	@RequestMapping(value = "/logistics", method = RequestMethod.GET)
 	public ModelAndView logisticsPage() throws Exception
 	{
@@ -89,21 +99,37 @@ public class MainController extends SpringController
 	}
 	
 	@RequestMapping(value = "/buyBox", method = RequestMethod.POST)
-	public ModelAndView doBuyBox(@Valid BuyBoxSalesman salesman, BindingResult bindingResult) throws Exception
+	public ModelAndView doBuyBox(@Valid BoxSalesman salesman, BindingResult bindingResult) throws Exception
 	{
 		if (bindingResult.hasErrors())
 			return new ModelAndView(errorPage, ERROR_MODEL, bindingResult.getFieldErrors());
 		AccountService accountService = new AccountService(sessionFactory);
 		AccountModel account = accountService.sessionCheck(httpSession);
 		salesman = new BoxService(account.getId(), sessionFactory).buyNewBox(salesman);
-		BoxModel box = salesman.getBox();
-		PayModel payModel = salesman.getPay();
+		String payPage = getPayPage(salesman.getBox(), salesman.getPay());
+		return new ModelAndView("redirect:" + payPage);
+	}
+	
+	@RequestMapping(value = "/renewBox", method = RequestMethod.POST)
+	public ModelAndView doRenewBox(@Valid BoxRenewer renewer, BindingResult bindingResult) throws Exception
+	{
+		if (bindingResult.hasErrors())
+			return new ModelAndView(errorPage, ERROR_MODEL, bindingResult.getFieldErrors());
+		AccountService accountService = new AccountService(sessionFactory);
+		AccountModel account = accountService.sessionCheck(httpSession);
+		renewer = new BoxService(account.getId(), sessionFactory).renewBox(renewer);
+		String payPage = getPayPage(renewer.getBox(), renewer.getPay());
+		return new ModelAndView("redirect:" + payPage);
+	}
+
+	private String getPayPage(BoxModel box, PayModel payModel)
+	{
 		payModel.setToken((String)context.getBean("bankToken"));
 		payModel.setCallbackurl((String)context.getBean("warehouseURL") + "/" + box.getId() + "/" + box.getHashCode());
 		RestTemplate restTemplate = new RestTemplate();
 		String bankeURL = (String)context.getBean("bankURL") + "/auth";
 		String payPage = restTemplate.postForObject(bankeURL, payModel, String.class);
-		return new ModelAndView("redirect:" + payPage);
+		return payPage;
 	}
 	
 	@ExceptionHandler(WarehouseLogisticsException.class)
