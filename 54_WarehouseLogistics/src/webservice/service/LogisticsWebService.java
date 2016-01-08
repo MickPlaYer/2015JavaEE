@@ -1,6 +1,5 @@
 package webservice.service;
 
-import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -23,8 +22,13 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import exceptions.NullAccountException;
+import exceptions.BoxPeriodException;
+import exceptions.BoxPrivilegeException;
+import exceptions.ItemNotEnoughException;
 import exceptions.NullBoxException;
+import exceptions.NullWaybillException;
+import exceptions.WarehouseLogisticsException;
+import exceptions.WaybillPrivilegeException;
 import service.database.AccountDatabase;
 import service.database.BoxDatabase;
 import service.database.WaybillDatabase;
@@ -35,19 +39,16 @@ import webservice.responsemodel.WaybillWSModel;
 
 @RestController()
 @RequestMapping("/webservice/logistics")
-public class LogisticsService
+public class LogisticsWebService
 {
 	@RequestMapping(value = "/auto", method = RequestMethod.POST)
 	public int autoDeliver(@RequestBody AutoDeliverModel model) throws Exception
 	{
 		AccountDatabase accountDatabae = new AccountDatabase();
-		AccountModel account;
+		AccountModel account = accountDatabae.findByToken(model.getToken());
 		BoxDatabase boxDatabase = new BoxDatabase();
 		int fee = 10;
-		WaybillDatabase waybillDatabase = new WaybillDatabase();
-		WaybillModel waybill = new WaybillModel();
-		account = accountDatabae.findByToken(model.getToken());
-		
+
 		RestTemplate restTemplate = new RestTemplate();
 		CheckPaymentModel checkPaymentModel = new CheckPaymentModel();
 		checkPaymentModel.setLogid(model.getPaymentId());
@@ -56,20 +57,20 @@ public class LogisticsService
 		int success = restTemplate.postForObject(uri, checkPaymentModel, int.class);
 		if (success != 1)
 			return -1;
-		
+
 		String from = "";
 		String contents = "";
 		List<ItemBoxModel> list = model.getList();
-		List<ItemBoxModel> deleteList = new ArrayList<ItemBoxModel>();
-		List<ItemBoxModel> updateList = new ArrayList<ItemBoxModel>();
-		List<Integer> boxIds = new ArrayList<Integer>();
-		List<BoxModel> boxList;
-		boxList = boxDatabase.listByOwner(account.getId());
+		
+		List<BoxModel> accountBoxList = boxDatabase.listByOwner(account.getId());
 		List<Integer> accountBoxIds = new ArrayList<Integer>();
-		for (BoxModel b : boxList)
+		for (BoxModel b : accountBoxList)
 		{
 			accountBoxIds.add(b.getId());
 		}
+		
+		// Write down "send from location".
+		List<Integer> boxIds = new ArrayList<Integer>();
 		Calendar calendar = Calendar.getInstance();
 		Date today = calendar.getTime();
 		for (ItemBoxModel i : list)
@@ -77,40 +78,52 @@ public class LogisticsService
 			if (!boxIds.contains(i.getBoxId()))
 			{
 				boxIds.add(i.getBoxId());
-				for (BoxModel b : boxList)
+				for (BoxModel b : accountBoxList)
 				{
 					if (b.getId() == i.getBoxId())
 					{
 						if (today.after(b.getDeadline()))
-							throw new Exception("倉庫已超過使用期限");
+							throw new BoxPeriodException();
 						from += b.getLocation() + ", ";
 					}
 				}
 			}
 		}
 
+		// Move items and write down contents.
+		List<ItemBoxModel> deleteList = new ArrayList<ItemBoxModel>();
+		List<ItemBoxModel> updateList = new ArrayList<ItemBoxModel>();
 		for (ItemBoxModel i : list)
 		{
 			if (!accountBoxIds.contains(i.getBoxId()))
-				throw new Exception("Not allow use the box.");
+				throw new BoxPrivilegeException();
 			ItemModel item = boxDatabase.findItem(i.getItemId());
-			if (item == null)
-				throw new Exception("Can't not find item.");
 			ItemBoxModel itemBox = boxDatabase.findItemBox(i.getBoxId(), i.getItemId());
-			if (itemBox == null)
-				throw new Exception("Can't not find item in box.");
 			itemBox.addAmount(-i.getAmount());
 			if (itemBox.getAmount() < 0)
-				throw new Exception("Item amount not enough.");
+				throw new ItemNotEnoughException();
 			else if (itemBox.getAmount() == 0)
 				deleteList.add(itemBox);
 			else
 				updateList.add(itemBox);
-			
 			contents += item.getName() + " x " + i.getAmount() + ", ";
 		}
 		boxDatabase.updateItemBoxList(updateList);
 		boxDatabase.deleteItemBoxList(deleteList);
+		
+		if (from.length() >= 300)
+		{
+			from = from.substring(0, 299);
+			from += "...";
+		}
+		if (contents.length() >= 300)
+		{
+			contents = contents.substring(0, 299);
+			contents += "...";
+		}
+		
+		WaybillDatabase waybillDatabase = new WaybillDatabase();
+		WaybillModel waybill = new WaybillModel();
 		waybill.setAccountId(account.getId());
 		waybill.setContents(contents);
 		waybill.setFrom(from);
@@ -128,10 +141,8 @@ public class LogisticsService
 		AccountModel account = accountDatabae.findByToken(model.getToken());
 		WaybillDatabase waybillDatabase = new WaybillDatabase();
 		WaybillModel waybill = waybillDatabase.find(id);
-		if (waybill == null)
-			throw new NullAccountException();
 		if (waybill.getAccountId() != account.getId())
-			throw new Exception("Can't view the waybill.");
+			throw new WaybillPrivilegeException();
 		WaybillWSModel waybillWS = new WaybillWSModel();
 		waybillWS.setContents(waybill.getContents());
 		waybillWS.setFee(waybill.getFee());
@@ -142,15 +153,20 @@ public class LogisticsService
 		return waybillWS;
 	}
 	
-	@ExceptionHandler(NullAccountException.class)
+	@ExceptionHandler(NullWaybillException.class)
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.NOT_FOUND)
-	public void handleNullAccountException(NullAccountException e) {}
+	public void handleNullWaybillExceptionException(NullWaybillException e) {}
 	
 	@ExceptionHandler(NullBoxException.class)
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.NOT_FOUND)
 	public void handleNullBoxExceptionException(NullBoxException e) {}
+	
+	@ExceptionHandler(WarehouseLogisticsException.class)
+	@ResponseBody
+	@ResponseStatus(value = HttpStatus.NOT_ACCEPTABLE)
+	public void handleWarehouseLogisticsExceptionException(WarehouseLogisticsException e) {}
 	
 	@ExceptionHandler(Exception.class)
 	@ResponseBody

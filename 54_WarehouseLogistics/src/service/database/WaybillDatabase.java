@@ -11,6 +11,7 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.service.ServiceRegistry;
 
+import exceptions.NullWaybillException;
 import model.WaybillModel;
 
 public class WaybillDatabase
@@ -60,12 +61,14 @@ public class WaybillDatabase
 		session.close();
 	}
 	
-	public WaybillModel find(int id) throws Exception
+	public WaybillModel find(int id) throws NullWaybillException
 	{
 		WaybillModel waybill = new WaybillModel();
 		session = sessionFactory.openSession();
 		waybill = (WaybillModel)session.get(WaybillModel.class, id);
 		session.close();
+		if (waybill == null)
+			throw new NullWaybillException();
 		return waybill;
 	}
 	

@@ -7,7 +7,7 @@ import java.util.List;
 
 import converter.MD5Converter;
 import service.database.BoxDatabase;
-import viewmodel.AddItemModel;
+import viewmodel.ModifyItemModel;
 import viewmodel.BoxToBoxModel;
 import viewmodel.BoxToLocationModel;
 import viewmodel.BuyBoxSalesman;
@@ -105,7 +105,7 @@ public class BoxService
 		return salesman;
 	}
 	
-	public void addItemToBox(int boxId, AddItemModel model) throws Exception
+	public void addItemToBox(int boxId, ModifyItemModel model) throws Exception
 	{
 		BoxModel box = getBox(boxId);
 		ItemModel item;
@@ -138,7 +138,7 @@ public class BoxService
 		}
 	}
 
-	public void removeItemFromBox(int boxId, AddItemModel model) throws Exception
+	public void removeItemFromBox(int boxId, ModifyItemModel model) throws Exception
 	{
 		BoxModel box = getBox(boxId);
 		ItemModel item = boxDatabase.findItemByName(model.getName());
@@ -239,7 +239,7 @@ public class BoxService
 	public void deliverItemToBox(int boxId, ItemToBoxModel model) throws Exception
 	{
 		System.out.println(model.getAmount());
-		AddItemModel addItemModel = new AddItemModel();
+		ModifyItemModel addItemModel = new ModifyItemModel();
 		addItemModel.setAmount(model.getAmount());
 		System.out.println(addItemModel.getAmount());
 		addItemModel.setName(model.getItem());
@@ -248,7 +248,7 @@ public class BoxService
 
 	public void deliverBoxToLocation(int boxId, BoxToLocationModel model) throws Exception
 	{
-		AddItemModel addItemModel = new AddItemModel();
+		ModifyItemModel addItemModel = new ModifyItemModel();
 		addItemModel.setAmount(model.getAmount());
 		addItemModel.setName(model.getItem());
 		removeItemFromBox(boxId, addItemModel);

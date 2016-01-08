@@ -24,7 +24,7 @@ import model.ItemAmountModel;
 import service.AccountService;
 import service.BoxService;
 import service.database.BoxDatabase;
-import viewmodel.AddItemModel;
+import viewmodel.ModifyItemModel;
 
 @Controller()
 @RequestMapping("/box")
@@ -53,7 +53,7 @@ public class BoxController extends SpringController
 	}
 	
 	@RequestMapping(value = "/addItem/{id}", method = RequestMethod.POST)
-	public ModelAndView addItem(@Valid AddItemModel model, BindingResult bindingResult, @PathVariable("id") int boxId) throws Exception
+	public ModelAndView addItem(@Valid ModifyItemModel model, BindingResult bindingResult, @PathVariable("id") int boxId) throws Exception
 	{
 		if (bindingResult.hasErrors())
 			return new ModelAndView(errorPage, ERROR_MODEL, bindingResult.getFieldErrors());
@@ -86,7 +86,7 @@ public class BoxController extends SpringController
 	}
 	
 	@RequestMapping(value = "/removeItem/{id}", method = RequestMethod.POST)
-	public ModelAndView removeItem(@Valid AddItemModel model, BindingResult bindingResult, @PathVariable("id") int boxId) throws Exception
+	public ModelAndView removeItem(@Valid ModifyItemModel model, BindingResult bindingResult, @PathVariable("id") int boxId) throws Exception
 	{
 		if (bindingResult.hasErrors())
 			return new ModelAndView(errorPage, ERROR_MODEL, bindingResult.getFieldErrors());

@@ -1,8 +1,6 @@
 package webservice.service;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import model.AccountModel;
@@ -21,10 +19,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import exceptions.NullAccountException;
+import exceptions.BoxPrivilegeException;
 import exceptions.NullBoxException;
+import exceptions.NullItemException;
+import exceptions.WarehouseLogisticsException;
+import service.BoxService;
 import service.database.AccountDatabase;
 import service.database.BoxDatabase;
+import viewmodel.ModifyItemModel;
 import webservice.requestmodel.AddItemModel;
 import webservice.requestmodel.BoxGetModel;
 import webservice.responsemodel.BoxWSModel;
@@ -32,15 +34,14 @@ import webservice.responsemodel.ItemBoxWSModel;
 
 @RestController()
 @RequestMapping("/webservice/box")
-public class BoxService
+public class BoxWebService
 {
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json")
 	public @ResponseBody List<BoxWSModel> getMyBoxList(@RequestBody BoxGetModel model) throws Exception
 	{
 		AccountDatabase accountDatabae = new AccountDatabase();
-		AccountModel account;
+		AccountModel account = accountDatabae.findByToken(model.getToken());
 		BoxDatabase boxDatabase = new BoxDatabase();
-		account = accountDatabae.findByToken(model.getToken());
 		List<BoxModel> list = boxDatabase.listByOwner(account.getId());
 		List<BoxWSModel> boxList = new ArrayList<BoxWSModel>();
 		for (BoxModel b : list)
@@ -60,64 +61,29 @@ public class BoxService
 	public @ResponseBody List<ItemAmountModel> getMyBoxItem(@PathVariable("id") int id, @RequestBody BoxGetModel model) throws Exception
 	{
 		AccountDatabase accountDatabae = new AccountDatabase();
-		AccountModel account;
+		AccountModel account = accountDatabae.findByToken(model.getToken());
 		BoxDatabase boxDatabase = new BoxDatabase();
-		BoxModel box = new BoxModel();
-		account = accountDatabae.findByToken(model.getToken());
-		box = boxDatabase.find(id);
+		BoxModel box = boxDatabase.find(id);
 		if (account.getId() != box.getOwner())
-			throw new Exception("Not allow to use the box.");
-		List<ItemAmountModel> list = boxDatabase.listItemAmount(box);
+			throw new BoxPrivilegeException();
+		List<ItemAmountModel> list;
+		try	{ list = boxDatabase.listItemAmount(box); }
+		catch (NullItemException exception)	{ list = new ArrayList<ItemAmountModel>(); }
 		return list;
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, value = "/{id}/add", produces = "application/json")
-	public @ResponseBody ItemBoxWSModel addItemToBox(@PathVariable("id") int id, @RequestBody AddItemModel model) throws Exception
+	public @ResponseBody ItemBoxWSModel addItemToBox(@PathVariable("id") int boxId, @RequestBody AddItemModel model) throws Exception
 	{
 		AccountDatabase accountDatabae = new AccountDatabase();
-		AccountModel account;
-		BoxDatabase boxDatabase = new BoxDatabase();
-		BoxModel box;
-		ItemModel item;
-		ItemBoxModel itemBox;
-		account = accountDatabae.findByToken(model.getToken());
-		box = boxDatabase.find(id);
-		Calendar calendar = Calendar.getInstance();
-		Date today = calendar.getTime();
-		if (today.after(box.getDeadline()))
-			throw new Exception("倉庫已超過使用期限");
-		if (account.getId() != box.getOwner())
-			throw new Exception("Not allow to use the box.");
-		item = boxDatabase.findItemByName(model.getItemName());
-		if (item == null)
-		{
-			item = new ItemModel();
-			item.setName(model.getItemName());
-			boxDatabase.createItem(item);
-			item = boxDatabase.findItemByName(model.getItemName());
-			itemBox = new ItemBoxModel();
-			itemBox.setItemId(item.getId());
-			itemBox.setBoxId(id);
-			itemBox.setAmount(model.getAmount());
-			boxDatabase.createItemBox(itemBox);
-		}
-		else
-		{
-			itemBox = boxDatabase.findItemBox(id, item.getId());
-			if (itemBox == null)
-			{
-				itemBox = new ItemBoxModel();
-				itemBox.setItemId(item.getId());
-				itemBox.setBoxId(id);
-				itemBox.setAmount(model.getAmount());
-				boxDatabase.createItemBox(itemBox);
-			}
-			else
-			{
-				itemBox.addAmount(model.getAmount());
-				boxDatabase.updateItemBox(itemBox);
-			}
-		}
+		AccountModel account = accountDatabae.findByToken(model.getToken());	
+		BoxService boxService = new BoxService(account.getId());
+		ModifyItemModel modifyItem = new ModifyItemModel();
+		modifyItem.setName(model.getItemName());
+		modifyItem.setAmount(model.getAmount());
+		boxService.addItemToBox(boxId, modifyItem);
+		ItemModel item = boxService.findItemByName(model.getItemName());
+		ItemBoxModel itemBox = boxService.findItemBox(boxId, item.getId());
 		ItemBoxWSModel itemBoxModel = new ItemBoxWSModel();
 		itemBoxModel.setItemId(itemBox.getItemId());
 		itemBoxModel.setBoxId(itemBox.getBoxId());
@@ -125,15 +91,15 @@ public class BoxService
 		return itemBoxModel;
 	}
 	
-	@ExceptionHandler(NullAccountException.class)
-	@ResponseBody
-	@ResponseStatus(value = HttpStatus.NOT_FOUND)
-	public void handleNullAccountException(NullAccountException e) {}
-	
 	@ExceptionHandler(NullBoxException.class)
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.NOT_FOUND)
 	public void handleNullBoxExceptionException(NullBoxException e) {}
+	
+	@ExceptionHandler(WarehouseLogisticsException.class)
+	@ResponseBody
+	@ResponseStatus(value = HttpStatus.NOT_ACCEPTABLE)
+	public void handleWarehouseLogisticsExceptionException(WarehouseLogisticsException e) {}
 	
 	@ExceptionHandler(Exception.class)
 	@ResponseBody
