@@ -148,8 +148,7 @@ public class BoxController extends SpringController
 	@RequestMapping(value = "/{id}/{hashCode}", method = RequestMethod.GET)
 	public ModelAndView activateBox(@PathVariable("id") int boxId, @PathVariable("hashCode") String hashCode) throws Exception
 	{
-		AccountModel account = new AccountService(sessionFactory).sessionCheck(httpSession);
-		BoxService boxService = new BoxService(account.getId(), sessionFactory);
+		BoxService boxService = new BoxService(-1, sessionFactory);
 		try { boxService.activateBox(boxId, hashCode); }
 		catch (BoxDuplicateActivateException exception) { }
 		String page = (String)context.getBean("removeItemSuccess");
