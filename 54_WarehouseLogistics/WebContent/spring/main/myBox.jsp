@@ -42,8 +42,8 @@
 					#end
 				</td>
 				<td><button #if (${Box.hashCode}) disabled #end onclick="window.location.href='../box/$Box.id'">查看貨物</button></td>
-				<td><button #if (!${Box.afterToday} || ${Box.hashCode}) disabled #end onclick="window.location.href='../box/addItem/${$Box.id}'">新增貨物</button></td>
-				<td><button #if (!${Box.afterToday} || ${Box.hashCode}) disabled #end onclick="window.location.href='../box/removeItem/${Box.id}'">移除貨物</button></td>
+				<td><button #if (!${Box.afterToday} || ${Box.hashCode}) disabled #end onclick="window.location.href='../box/addItem/$Box.id'">新增貨物</button></td>
+				<td><button #if (!${Box.afterToday} || ${Box.hashCode}) disabled #end onclick="window.location.href='../box/removeItem/$Box.id'">移除貨物</button></td>
 			#end
 			</tr>
 			<tr>

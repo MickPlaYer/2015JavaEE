@@ -3,7 +3,7 @@
 
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<link href="../../css/web.css" rel="stylesheet" type="text/css">
+	<link href="/54_WarehouseLogistics/css/web.css" rel="stylesheet" type="text/css">
 	<title>Java54 倉儲物流</title>
 </head>
 
@@ -12,7 +12,7 @@
 		<p class="title">購買倉庫</p>
 		
 		<form action="" method="POST">
-			<table class="inputBox" class="navTable">
+			<table class="navTable">
 				<tr>
 					<td>倉庫名稱：</td>
 					<td><input class="inputBox" type="text" name="boxName"/></td>
