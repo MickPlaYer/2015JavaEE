@@ -43,20 +43,10 @@ public class BoxService
 		this.accountId = accountId;
 	}
 	
-	public List<BoxModel> getActivatedBoxList() throws Exception
+	public List<BoxModel> getBoxList() throws Exception
 	{
-		List<BoxModel> boxlist = new ArrayList<BoxModel>();
-		try
-		{ 
-			List<BoxModel> list = boxDatabase.listByOwner(accountId);
-			for(BoxModel box : list)
-				if (box.getHashCode() == null)
-					boxlist.add(box);
-		}
-		catch (NullBoxException exception) { }
-		return boxlist;
+		return boxDatabase.listByOwner(accountId);
 	}
-	
 
 	public List<BoxModel> getUseableBoxList() throws Exception
 	{
@@ -80,6 +70,7 @@ public class BoxService
 		PayModel pay = new PayModel();
 		String hashCode = "NiSeMoNo" + salesman.getBoxName() + new Date().toString();
 		hashCode = MD5Converter.convert(hashCode);
+		hashCode = "bnb" + hashCode.substring(3);
 		Date date = setupPeriodTypeAndPrice(new Date(), salesman.getBoxPeriod(), pay);
 		box.setOwner(accountId);
 		box.setName(salesman.getBoxName());
@@ -98,7 +89,14 @@ public class BoxService
 		PayModel pay = new PayModel();
 		String hashCode = "NekoMoNo" + box.getName() + new Date().toString();
 		hashCode = MD5Converter.convert(hashCode);
-		Date date = setupPeriodTypeAndPrice(box.getDeadline(), renewer.getBoxPeriod(), pay);
+		Date date;
+		if (box.getDeadline().after(new Date()))
+			date = box.getDeadline();
+		else
+			date = new Date();
+		date = setupPeriodTypeAndPrice(date, renewer.getBoxPeriod(), pay);
+		hashCode = "rnb" + (pay.getValue() / 100) + hashCode.substring(4);
+		System.out.println("hashCode: " + hashCode);
 		box.setDeadline(date);
 		box.setHashCode(hashCode);
 		boxDatabase.update(renewer.getBoxId(), box);
@@ -107,6 +105,48 @@ public class BoxService
 		return renewer;
 	}
 
+	public BoxRenewer activateBox(BoxRenewer renewer) throws Exception
+	{
+		BoxModel box = getBoxWithoutDateCheck(renewer.getBoxId());
+		PayModel pay = new PayModel();
+		String key = box.getHashCode();
+		if (key == null)
+			key = "rnb0";
+		System.out.println("key.substring(0, 4): " + key.substring(0, 4));
+		if ("rnb".equals(key.substring(0, 3)))
+		{
+			System.out.println("key.substring(3, 4): " + key.substring(3, 4));
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(box.getDeadline());
+			switch (key.substring(3, 4))
+			{
+				case "1":
+					calendar.add(Calendar.MONTH, -1);
+					break;
+				case "3":
+					calendar.add(Calendar.MONTH, -6);
+					break;
+				case "5":
+					calendar.add(Calendar.YEAR, -1);
+					break;
+			}
+			box.setDeadline(calendar.getTime());
+			boxDatabase.update(box.getId(), box);
+			return renewBox(renewer);
+		}
+		System.out.println("box.getHashCode(): " + box.getHashCode());
+		String hashCode = "NiSeMoNo" + box.getName() + new Date().toString();
+		hashCode = MD5Converter.convert(hashCode);
+		hashCode = "bnb" + hashCode.substring(3);
+		Date date = setupPeriodTypeAndPrice(new Date(), renewer.getBoxPeriod(), pay);
+		box.setDeadline(date);
+		box.setHashCode(hashCode);
+		boxDatabase.update(renewer.getBoxId(), box);
+		renewer.setBox(box);
+		renewer.setPay(pay);
+		return renewer;
+	}
+	
 	private Date setupPeriodTypeAndPrice(Date date, String period, PayModel pay) throws IllegalPeriodException
 	{
 		Calendar calendar = Calendar.getInstance();
@@ -182,7 +222,6 @@ public class BoxService
 			throw new ItemNotEnoughException();
 	}
 	
-
 	public BoxModel getBoxWithoutDateCheck(int boxId) throws Exception
 	{
 		BoxModel box = boxDatabase.find(boxId);

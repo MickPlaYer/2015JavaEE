@@ -21,7 +21,8 @@ CREATE TABLE Box
   owner INT REFERENCES Account (id) NOT NULL,
   name varchar(50) NOT NULL,
   location varchar(50) NOT NULL,
-  deadline datetime
+  deadline date,
+  hashCode varchar(32)
 )
 
 CREATE TABLE Item
@@ -42,9 +43,9 @@ CREATE TABLE Waybill
 (
   id INT IDENTITY(1,1) PRIMARY KEY,
   accountID int NOT NULL,
-  contents varchar(50) DEFAULT NULL,
-  _from varchar(50) DEFAULT NULL,
-  _to varchar(50) DEFAULT NULL,
+  contents varchar(500) DEFAULT NULL,
+  _from varchar(500) DEFAULT NULL,
+  _to varchar(500) DEFAULT NULL,
   status int DEFAULT 0,
   fee INT NOT NULL
 )
@@ -53,6 +54,9 @@ ALTER TABLE Box
 DROP CONSTRAINT FK__BOX__owner__2D47B39A
 ALTER TABLE Box
 DROP COLUMN owner
+
+ALTER TABLE Box 
+ALTER COLUMN deadline DATE NOT NULL
 ----------------
 帳號註冊
 

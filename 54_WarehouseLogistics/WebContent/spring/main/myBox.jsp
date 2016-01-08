@@ -23,15 +23,29 @@
 			</tr>
 			#foreach( $Box in $BoxList )
 			<tr>
-				<td style="text-align: right">$Box.id</td>
+				<td style="text-align: right">
+					#if (!$Box.hashCode)
+						$Box.id
+					#else
+						<button onclick="window.location.href='./activateBox/$Box.id'">啟用倉庫</button>
+					#end
+				</td>
 				<td>$Box.name</td>
 				<td>$Box.location</td>
-				<td>$Box.deadline</td>
-				<td><button onclick="window.location.href='../box/$Box.id'">查看貨物</button></td>
-				<td><button onclick="window.location.href='../box/addItem/$Box.id'">新增貨物</button></td>
-				<td><button onclick="window.location.href='../box/removeItem/$Box.id'">移除貨物</button></td>
-			</tr>
+				<td>
+					#if ($Box.hashCode)
+						未啟用
+					#elseif (!$Box.afterToday)
+						已過期
+					#else
+						$Box.deadline
+					#end
+				</td>
+				<td><button #if (${Box.hashCode}) disabled #end onclick="window.location.href='../box/$Box.id'">查看貨物</button></td>
+				<td><button #if (!${Box.afterToday} || ${Box.hashCode}) disabled #end onclick="window.location.href='../box/addItem/${$Box.id}'">新增貨物</button></td>
+				<td><button #if (!${Box.afterToday} || ${Box.hashCode}) disabled #end onclick="window.location.href='../box/removeItem/${Box.id}'">移除貨物</button></td>
 			#end
+			</tr>
 			<tr>
 				<td colspan="7">
 					<button onclick="window.location.href='./buyBox'">購買新的倉庫</button>

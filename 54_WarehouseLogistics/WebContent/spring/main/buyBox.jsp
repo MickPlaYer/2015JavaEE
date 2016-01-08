@@ -12,7 +12,7 @@
 		<p class="title">購買倉庫</p>
 		
 		<form action="" method="POST">
-			<table class="navTable">
+			<table class="inputBox" class="navTable">
 				<tr>
 					<td>倉庫名稱：</td>
 					<td><input class="inputBox" type="text" name="boxName"/></td>
@@ -22,7 +22,7 @@
 					<td><input class="inputBox" type="text" name="boxLocation"/></td>
 				</tr>
 				<tr>
-					<td>購買期限：</td>
+					<td>購買方案：</td>
 					<td>
 						<select name="boxPeriod">
 	  						<option value="year">一年 $500</option>

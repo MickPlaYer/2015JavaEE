@@ -12,11 +12,11 @@
 		<p class="title">我的倉庫</p>
 		
 		<table class="navTable" border="1px" cellspacing="0px" cellpadding="6px">
-			<tr><th colspan="7">$Box.name</th></tr>
+			<tr><th colspan="7">${Box.name} 可使用至 ${Box.deadline}</th></tr>
 			<tr>
-				<th>序號</th>
-				<th>名稱</th>
-				<th>數量</th>
+				<th>貨物序號</th>
+				<th>貨物名稱</th>
+				<th>貨物數量</th>
 				<th>新增</th>
 				<th>移除</th>
 				<th>運送至倉庫</th>
@@ -35,8 +35,8 @@
 			#end
 			<tr>
 				<td colspan="7">
-					<button onclick="window.location.href='./addItem/$Box.id'">新增貨物</button>
-					<button onclick="window.location.href='./removeItem/$Box.id'">移除貨物</button>
+					<button #if (!${Box.afterToday} || ${Box.hashCode}) disabled #end onclick="window.location.href='./addItem/$Box.id'">新增貨物</button>
+					<button #if (!${Box.afterToday} || ${Box.hashCode}) disabled #end onclick="window.location.href='./removeItem/$Box.id'">移除貨物</button>
 				</td>
 			</tr> 
 		</table>

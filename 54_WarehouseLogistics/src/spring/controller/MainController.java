@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.client.RestTemplate;
@@ -65,7 +66,7 @@ public class MainController extends SpringController
 	public ModelAndView myBox() throws Exception
 	{
 		AccountModel account = new AccountService(sessionFactory).sessionCheck(httpSession);
-		List<BoxModel> boxlist = new BoxService(account.getId(), sessionFactory).getActivatedBoxList();
+		List<BoxModel> boxlist = new BoxService(account.getId(), sessionFactory).getBoxList();
 		String page = (String)context.getBean("myBoxPage");
 		ModelAndView view = new ModelAndView(page);
 		view.addObject("Account", account);
@@ -76,6 +77,7 @@ public class MainController extends SpringController
 	@RequestMapping(value = "/buyBox", method = RequestMethod.GET)
 	public ModelAndView buyBox() throws Exception
 	{
+		new AccountService(sessionFactory).sessionCheck(httpSession);
 		String page = (String)context.getBean("buyBoxPage");
 		return new ModelAndView(page);
 	}
@@ -84,10 +86,21 @@ public class MainController extends SpringController
 	public ModelAndView renewBox() throws Exception
 	{
 		AccountModel account = new AccountService(sessionFactory).sessionCheck(httpSession);
-		List<BoxModel> boxlist = new BoxService(account.getId(), sessionFactory).getActivatedBoxList();
+		List<BoxModel> boxlist = new BoxService(account.getId(), sessionFactory).getBoxList();
 		String page = (String)context.getBean("renewBoxPage");
 		ModelAndView view = new ModelAndView(page);
 		view.addObject("BoxList", boxlist);
+		return view;
+	}
+	
+	@RequestMapping(value = "/activateBox/{id}", method = RequestMethod.GET)
+	public ModelAndView activateBox(@PathVariable("id") int id) throws Exception
+	{
+		AccountModel account = new AccountService(sessionFactory).sessionCheck(httpSession);
+		BoxModel box = new BoxService(account.getId(), sessionFactory).getBoxWithoutDateCheck(id);
+		String page = (String)context.getBean("activateBoxPage");
+		ModelAndView view = new ModelAndView(page);
+		view.addObject("Box", box);
 		return view;
 	}
 	
@@ -122,6 +135,18 @@ public class MainController extends SpringController
 		return new ModelAndView("redirect:" + payPage);
 	}
 
+	@RequestMapping(value = "/activateBox/{id}", method = RequestMethod.POST)
+	public ModelAndView doActivateBox(@Valid BoxRenewer renewer, BindingResult bindingResult) throws Exception
+	{
+		if (bindingResult.hasErrors())
+			return new ModelAndView(errorPage, ERROR_MODEL, bindingResult.getFieldErrors());
+		AccountService accountService = new AccountService(sessionFactory);
+		AccountModel account = accountService.sessionCheck(httpSession);
+		renewer = new BoxService(account.getId(), sessionFactory).activateBox(renewer);
+		String payPage = getPayPage(renewer.getBox(), renewer.getPay());
+		return new ModelAndView("redirect:" + payPage);
+	}
+	
 	private String getPayPage(BoxModel box, PayModel payModel)
 	{
 		payModel.setToken((String)context.getBean("bankToken"));

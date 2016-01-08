@@ -10,6 +10,7 @@ public class BoxModel
 	private String location;
 	private Date deadline;
 	private String hashCode;
+	private boolean afterToday;
 	
 	public int getId()
 	{
@@ -69,5 +70,16 @@ public class BoxModel
 	public void setHashCode(String hashCode)
 	{
 		this.hashCode = hashCode;
+	}
+
+	public boolean isAfterToday()
+	{
+		afterToday = new Date().before(deadline);
+		return afterToday;
+	}
+
+	public void setAfterToday(boolean isAfterToday)
+	{
+		this.afterToday = isAfterToday;
 	}
 }

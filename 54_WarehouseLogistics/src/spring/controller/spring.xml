@@ -52,6 +52,9 @@
     <bean id="renewBoxPage" class="java.lang.String">
 		<constructor-arg type="String" value="spring/main/renewBox"/>
     </bean>
+    <bean id="activateBoxPage" class="java.lang.String">
+		<constructor-arg type="String" value="spring/main/activateBox"/>
+    </bean>
     <bean id="myBoxItemPage" class="java.lang.String">
 		<constructor-arg type="String" value="spring/main/myBoxItem"/>
     </bean>
