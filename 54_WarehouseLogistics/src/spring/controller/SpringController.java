@@ -4,6 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import javax.servlet.http.HttpSession;
+
+import org.hibernate.SessionFactory;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.service.ServiceRegistry;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.validation.FieldError;
 import org.springframework.web.servlet.ModelAndView;
@@ -16,10 +22,25 @@ public class SpringController
 	protected ResourceBundle resource = ResourceBundle.getBundle("resources.MessageDictionary");
 	protected ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(CONTEXT_FILE);
 	protected String errorPage;
+	protected SessionFactory sessionFactory;
 	
 	public SpringController(String errorPage)
 	{
 		this.errorPage = (String)context.getBean(errorPage);
+	}
+
+	protected void setupHibernateConfig(HttpSession httpSession)
+	{
+		sessionFactory = (SessionFactory)httpSession.getAttribute("SessionFactory");
+		if (sessionFactory == null)
+		{
+			String CONFIG = (String)context.getBean("hibernateConfig");
+			Configuration config = new Configuration().configure(CONFIG);
+			StandardServiceRegistryBuilder ssrb = new StandardServiceRegistryBuilder();
+			ServiceRegistry serviceRegistry = ssrb.applySettings(config.getProperties()).build();
+			sessionFactory = config.buildSessionFactory(serviceRegistry);
+			httpSession.setAttribute("SessionFactory", sessionFactory);
+		}
 	}
 	
 	protected ModelAndView getErrorModelAndView(Exception exception, String error)
@@ -39,25 +60,4 @@ public class SpringController
 		feeErrors.add(new FieldError(className, exception.getMessage(), errorTip));
 		return new ModelAndView(errorPage, ERROR_MODEL, feeErrors);
 	}
-	
-	/*protected Object sessionCheck(HttpSession httpSession)
-	{
-		AccountModel account;
-		try
-		{ 
-			AccountDatabase accountDatabase = new AccountDatabase();
-			String name = (String)httpSession.getAttribute("name");
-			String session = (String)httpSession.getAttribute("session");
-			if (name == null || session == null)
-				throw new SessionFailException();
-			account = accountDatabase.findByName(name);
-			if  (!account.getSession().equals(session))
-				throw new SessionFailException();
-		}
-		catch (NullAccountException | SessionFailException exception)
-		{ return getErrorModelAndView(exception, exception.getMessage()); }
-		catch (Exception exception)
-		{ return getErrorModelAndView(exception, DB_ERROR);	}
-		return account;
-	}*/
 }

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.client.RestTemplate;
@@ -35,6 +36,14 @@ public class MainController extends SpringController
 		super("mainErrorPage");
 	}
 	
+	@ModelAttribute("BeforeDo")
+	public void beforeDo(HttpSession httpSession)
+	{
+		System.out.println("Box Controller Before Do");
+		setupHibernateConfig(httpSession);
+		System.out.println("Box Controller Before Do Done");
+	}
+	
 	@RequestMapping(method = RequestMethod.GET)
 	public ModelAndView mainPage() throws Exception
 	{
@@ -48,7 +57,7 @@ public class MainController extends SpringController
 	@RequestMapping(value = "/myAccount", method = RequestMethod.GET)
 	public ModelAndView myAccount() throws Exception
 	{
-		AccountModel account = new AccountService().sessionCheck(httpSession);
+		AccountModel account = new AccountService(sessionFactory).sessionCheck(httpSession);
 		String page = (String)context.getBean("myAccountPage");
 		return new ModelAndView(page, "Account", account);
 	}
@@ -56,8 +65,8 @@ public class MainController extends SpringController
 	@RequestMapping(value = "/myBox", method = RequestMethod.GET)
 	public ModelAndView myBox() throws Exception
 	{
-		AccountModel account = new AccountService().sessionCheck(httpSession);
-		List<BoxModel> boxlist = new BoxService(account.getId()).getActivatedBoxList();
+		AccountModel account = new AccountService(sessionFactory).sessionCheck(httpSession);
+		List<BoxModel> boxlist = new BoxService(account.getId(), sessionFactory).getActivatedBoxList();
 		String page = (String)context.getBean("myBoxPage");
 		ModelAndView view = new ModelAndView(page);
 		view.addObject("Account", account);
@@ -84,9 +93,9 @@ public class MainController extends SpringController
 	{
 		if (bindingResult.hasErrors())
 			return new ModelAndView(errorPage, ERROR_MODEL, bindingResult.getFieldErrors());
-		AccountService accountService = new AccountService();
+		AccountService accountService = new AccountService(sessionFactory);
 		AccountModel account = accountService.sessionCheck(httpSession);
-		salesman = new BoxService(account.getId()).buyNewBox(salesman);
+		salesman = new BoxService(account.getId(), sessionFactory).buyNewBox(salesman);
 		BoxModel box = salesman.getBox();
 		PayModel payModel = salesman.getPay();
 		payModel.setToken((String)context.getBean("bankToken"));

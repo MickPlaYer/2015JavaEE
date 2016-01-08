@@ -3,14 +3,23 @@ package webservice.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 import model.AccountModel;
 import model.BoxModel;
 import model.ItemAmountModel;
 import model.ItemBoxModel;
 import model.ItemModel;
 
+import org.hibernate.SessionFactory;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.service.ServiceRegistry;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,12 +45,33 @@ import webservice.responsemodel.ItemBoxWSModel;
 @RequestMapping("/webservice/box")
 public class BoxWebService
 {
+	protected SessionFactory sessionFactory;
+	protected final String CONTEXT_FILE = "spring/controller/spring.xml";
+	protected ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(CONTEXT_FILE);
+	@Autowired
+	private HttpSession httpSession;
+	
+	@ModelAttribute("BeforeDo")
+	protected void setupHibernateConfig()
+	{
+		sessionFactory = (SessionFactory)httpSession.getAttribute("SessionFactory");
+		if (sessionFactory == null)
+		{
+			String CONFIG = (String)context.getBean("hibernateConfig");
+			Configuration config = new Configuration().configure(CONFIG);
+			StandardServiceRegistryBuilder ssrb = new StandardServiceRegistryBuilder();
+			ServiceRegistry serviceRegistry = ssrb.applySettings(config.getProperties()).build();
+			sessionFactory = config.buildSessionFactory(serviceRegistry);
+			httpSession.setAttribute("SessionFactory", sessionFactory);
+		}
+	}
+	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json")
 	public @ResponseBody List<BoxWSModel> getMyBoxList(@RequestBody BoxGetModel model) throws Exception
 	{
-		AccountDatabase accountDatabae = new AccountDatabase();
+		AccountDatabase accountDatabae = new AccountDatabase(sessionFactory);
 		AccountModel account = accountDatabae.findByToken(model.getToken());
-		BoxDatabase boxDatabase = new BoxDatabase();
+		BoxDatabase boxDatabase = new BoxDatabase(sessionFactory);
 		List<BoxModel> list = boxDatabase.listByOwner(account.getId());
 		List<BoxWSModel> boxList = new ArrayList<BoxWSModel>();
 		for (BoxModel b : list)
@@ -60,9 +90,9 @@ public class BoxWebService
 	@RequestMapping(method = RequestMethod.POST, value = "/{id}", produces = "application/json")
 	public @ResponseBody List<ItemAmountModel> getMyBoxItem(@PathVariable("id") int id, @RequestBody BoxGetModel model) throws Exception
 	{
-		AccountDatabase accountDatabae = new AccountDatabase();
+		AccountDatabase accountDatabae = new AccountDatabase(sessionFactory);
 		AccountModel account = accountDatabae.findByToken(model.getToken());
-		BoxDatabase boxDatabase = new BoxDatabase();
+		BoxDatabase boxDatabase = new BoxDatabase(sessionFactory);
 		BoxModel box = boxDatabase.find(id);
 		if (account.getId() != box.getOwner())
 			throw new BoxPrivilegeException();
@@ -75,9 +105,9 @@ public class BoxWebService
 	@RequestMapping(method = RequestMethod.POST, value = "/{id}/add", produces = "application/json")
 	public @ResponseBody ItemBoxWSModel addItemToBox(@PathVariable("id") int boxId, @RequestBody AddItemModel model) throws Exception
 	{
-		AccountDatabase accountDatabae = new AccountDatabase();
+		AccountDatabase accountDatabae = new AccountDatabase(sessionFactory);
 		AccountModel account = accountDatabae.findByToken(model.getToken());	
-		BoxService boxService = new BoxService(account.getId());
+		BoxService boxService = new BoxService(account.getId(), sessionFactory);
 		ModifyItemModel modifyItem = new ModifyItemModel();
 		modifyItem.setName(model.getItemName());
 		modifyItem.setAmount(model.getAmount());

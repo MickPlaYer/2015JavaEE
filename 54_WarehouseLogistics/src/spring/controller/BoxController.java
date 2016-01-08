@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -37,7 +38,15 @@ public class BoxController extends SpringController
 	{
 		super("boxErrorPage");
 	}
-
+	
+	@ModelAttribute("BeforeDo")
+	public void beforeDo(HttpSession httpSession)
+	{
+		System.out.println("Box Controller Before Do");
+		setupHibernateConfig(httpSession);
+		System.out.println("Box Controller Before Do Done");
+	}
+	
 	@RequestMapping(value = "/addItem/{boxId}/{itemId}", method = RequestMethod.GET)
 	public ModelAndView getAddItemWithIdPage(@PathVariable("boxId") int boxId, @PathVariable("itemId") int itemId) throws Exception
 	{
@@ -57,8 +66,8 @@ public class BoxController extends SpringController
 	{
 		if (bindingResult.hasErrors())
 			return new ModelAndView(errorPage, ERROR_MODEL, bindingResult.getFieldErrors());
-		AccountModel account = new AccountService().sessionCheck(httpSession);
-		BoxService boxService = new BoxService(account.getId());
+		AccountModel account = new AccountService(sessionFactory).sessionCheck(httpSession);
+		BoxService boxService = new BoxService(account.getId(), sessionFactory);
 		boxService.addItemToBox(boxId, model);
 		String page = (String)context.getBean("addItemSuccess");
 		return new ModelAndView("redirect:/" + page + boxId);
@@ -74,8 +83,8 @@ public class BoxController extends SpringController
 	@RequestMapping(value = "/removeItem/{id}", method = RequestMethod.GET)
 	public ModelAndView getRemoveItemPage(@PathVariable("id") int boxId) throws Exception
 	{
-		AccountModel account = new AccountService().sessionCheck(httpSession);
-		BoxService boxService = new BoxService(account.getId());
+		AccountModel account = new AccountService(sessionFactory).sessionCheck(httpSession);
+		BoxService boxService = new BoxService(account.getId(), sessionFactory);
 		List<ItemAmountModel> itemList = new ArrayList<ItemAmountModel>();
 		try { itemList = boxService.getItemAmountList(boxId); }
 		catch (NullItemException exception)	{ }
@@ -90,8 +99,8 @@ public class BoxController extends SpringController
 	{
 		if (bindingResult.hasErrors())
 			return new ModelAndView(errorPage, ERROR_MODEL, bindingResult.getFieldErrors());
-		AccountModel account = new AccountService().sessionCheck(httpSession);
-		BoxService boxService = new BoxService(account.getId());
+		AccountModel account = new AccountService(sessionFactory).sessionCheck(httpSession);
+		BoxService boxService = new BoxService(account.getId(), sessionFactory);
 		boxService.removeItemFromBox(boxId, model);
 		String page = (String)context.getBean("removeItemSuccess");
 		return new ModelAndView("redirect:/" + page + boxId);
@@ -101,7 +110,7 @@ public class BoxController extends SpringController
 	{
 		ModelAndView view = new ModelAndView(page);
 		String readOnly = "readonly";
-		BoxDatabase boxDatabase = new BoxDatabase();
+		BoxDatabase boxDatabase = new BoxDatabase(sessionFactory);
 		ItemAmountModel item;
 		item = boxDatabase.findItemAmount(boxId, itemId);
 		view.addObject("Item", item);
@@ -125,8 +134,8 @@ public class BoxController extends SpringController
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	public ModelAndView getMyBox(@PathVariable("id") int boxId) throws Exception
 	{
-		AccountModel account = new AccountService().sessionCheck(httpSession);
-		BoxService boxService = new BoxService(account.getId());
+		AccountModel account = new AccountService(sessionFactory).sessionCheck(httpSession);
+		BoxService boxService = new BoxService(account.getId(), sessionFactory);
 		BoxModel box = boxService.getBoxWithoutCheck(boxId);
 		List<ItemAmountModel> itemList = new ArrayList<ItemAmountModel>();
 		try { itemList = boxService.getItemAmountList(box); }
@@ -141,8 +150,8 @@ public class BoxController extends SpringController
 	@RequestMapping(value = "/{id}/{hashCode}", method = RequestMethod.GET)
 	public ModelAndView activateBox(@PathVariable("id") int boxId, @PathVariable("hashCode") String hashCode) throws Exception
 	{
-		AccountModel account = new AccountService().sessionCheck(httpSession);
-		BoxService boxService = new BoxService(account.getId());
+		AccountModel account = new AccountService(sessionFactory).sessionCheck(httpSession);
+		BoxService boxService = new BoxService(account.getId(), sessionFactory);
 		try { boxService.activateBox(boxId, hashCode); }
 		catch (BoxDuplicateActivateException exception) { }
 		String page = (String)context.getBean("removeItemSuccess");

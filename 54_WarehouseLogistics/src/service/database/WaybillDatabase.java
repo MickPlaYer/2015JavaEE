@@ -6,28 +6,21 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.cfg.Configuration;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.service.ServiceRegistry;
 
 import exceptions.NullWaybillException;
 import model.WaybillModel;
 
 public class WaybillDatabase
 {
-	private final String CONFIG = "service/database/hibernate-config.xml";
 	private SessionFactory sessionFactory;
 	private Session session;
 	private Criteria criteria;
 	private Transaction transaction;
 	
-	public WaybillDatabase() throws Exception
+	public WaybillDatabase(SessionFactory sessionFactory) throws Exception
 	{
-		Configuration config = new Configuration().configure(CONFIG);
-		StandardServiceRegistryBuilder ssrb = new StandardServiceRegistryBuilder();
-		ServiceRegistry serviceRegistry = ssrb.applySettings(config.getProperties()).build();
-		sessionFactory = config.buildSessionFactory(serviceRegistry);
+		this.sessionFactory = sessionFactory;
 	}
 	
 	public WaybillModel create(WaybillModel waybill) throws Exception

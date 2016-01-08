@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
@@ -34,7 +35,15 @@ public class AccountController extends SpringController
 	{
 		super("errorPage");
 	}
-
+	
+	@ModelAttribute("BeforeDo")
+	public void beforeDo(HttpSession httpSession)
+	{
+		System.out.println("Box Controller Before Do");
+		setupHibernateConfig(httpSession);
+		System.out.println("Box Controller Before Do Done");
+	}
+	
 	@RequestMapping(value = "/register", method = RequestMethod.GET)
 	public ModelAndView register()
 	{
@@ -47,7 +56,7 @@ public class AccountController extends SpringController
 	{
 		if (bindingResult.hasErrors())
 			return new ModelAndView(errorPage, ERROR_MODEL, bindingResult.getFieldErrors());
-		AccountDatabase accountDatabase = new AccountDatabase();
+		AccountDatabase accountDatabase = new AccountDatabase(sessionFactory);
 		AccountModel account;
 		try
 		{
@@ -73,7 +82,7 @@ public class AccountController extends SpringController
 	{
 		if (bindingResult.hasErrors())
 			return new ModelAndView(errorPage, ERROR_MODEL, bindingResult.getFieldErrors());
-		AccountDatabase accountDatabase = new AccountDatabase();
+		AccountDatabase accountDatabase = new AccountDatabase(sessionFactory);
 		AccountModel account = accountDatabase.findByName(model.getName());
 		if (!account.getPassword().equals(model.getPassword()))
 			throw new LoginFailException();

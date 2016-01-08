@@ -5,14 +5,23 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 import model.AccountModel;
 import model.BoxModel;
 import model.ItemBoxModel;
 import model.ItemModel;
 import model.WaybillModel;
 
+import org.hibernate.SessionFactory;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.service.ServiceRegistry;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,12 +50,33 @@ import webservice.responsemodel.WaybillWSModel;
 @RequestMapping("/webservice/logistics")
 public class LogisticsWebService
 {
+	protected SessionFactory sessionFactory;
+	protected final String CONTEXT_FILE = "spring/controller/spring.xml";
+	protected ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(CONTEXT_FILE);
+	@Autowired
+	private HttpSession httpSession;
+	
+	@ModelAttribute("BeforeDo")
+	protected void setupHibernateConfig()
+	{
+		sessionFactory = (SessionFactory)httpSession.getAttribute("SessionFactory");
+		if (sessionFactory == null)
+		{
+			String CONFIG = (String)context.getBean("hibernateConfig");
+			Configuration config = new Configuration().configure(CONFIG);
+			StandardServiceRegistryBuilder ssrb = new StandardServiceRegistryBuilder();
+			ServiceRegistry serviceRegistry = ssrb.applySettings(config.getProperties()).build();
+			sessionFactory = config.buildSessionFactory(serviceRegistry);
+			httpSession.setAttribute("SessionFactory", sessionFactory);
+		}
+	}
+	
 	@RequestMapping(value = "/auto", method = RequestMethod.POST)
 	public int autoDeliver(@RequestBody AutoDeliverModel model) throws Exception
 	{
-		AccountDatabase accountDatabae = new AccountDatabase();
+		AccountDatabase accountDatabae = new AccountDatabase(sessionFactory);
 		AccountModel account = accountDatabae.findByToken(model.getToken());
-		BoxDatabase boxDatabase = new BoxDatabase();
+		BoxDatabase boxDatabase = new BoxDatabase(sessionFactory);
 		int fee = 10;
 
 		RestTemplate restTemplate = new RestTemplate();
@@ -122,7 +152,7 @@ public class LogisticsWebService
 			contents += "...";
 		}
 		
-		WaybillDatabase waybillDatabase = new WaybillDatabase();
+		WaybillDatabase waybillDatabase = new WaybillDatabase(sessionFactory);
 		WaybillModel waybill = new WaybillModel();
 		waybill.setAccountId(account.getId());
 		waybill.setContents(contents);
@@ -137,9 +167,9 @@ public class LogisticsWebService
 	@RequestMapping(value = "/{id}", method = RequestMethod.POST, produces = "application/json")
 	public @ResponseBody WaybillWSModel getWaybill(@PathVariable("id") int id, @RequestBody BoxGetModel model) throws Exception
 	{
-		AccountDatabase accountDatabae = new AccountDatabase();
+		AccountDatabase accountDatabae = new AccountDatabase(sessionFactory);
 		AccountModel account = accountDatabae.findByToken(model.getToken());
-		WaybillDatabase waybillDatabase = new WaybillDatabase();
+		WaybillDatabase waybillDatabase = new WaybillDatabase(sessionFactory);
 		WaybillModel waybill = waybillDatabase.find(id);
 		if (waybill.getAccountId() != account.getId())
 			throw new WaybillPrivilegeException();

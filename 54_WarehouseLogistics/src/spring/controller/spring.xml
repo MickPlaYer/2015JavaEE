@@ -4,6 +4,10 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
 	http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
 	
+	<bean id="hibernateConfig" class="java.lang.String">
+		<constructor-arg type="String" value="service/database/hibernate-config.xml"/>
+	</bean>
+	
 	<bean id="bankToken" class="java.lang.String">
 		<constructor-arg type="String" value="381AC92740785E6B2A0DB48304AE669A"/>
 	</bean>

@@ -6,10 +6,7 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.cfg.Configuration;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.service.ServiceRegistry;
 
 import exceptions.NullBoxException;
 import exceptions.NullItemBoxException;
@@ -21,18 +18,14 @@ import model.ItemAmountModel;
 
 public class BoxDatabase
 {
-	private final String CONFIG = "service/database/hibernate-config.xml";
 	private SessionFactory sessionFactory;
 	private Session session;
 	private Criteria criteria;
 	private Transaction transaction;
 	
-	public BoxDatabase() throws Exception
+	public BoxDatabase(SessionFactory sessionFactory) throws Exception
 	{
-		Configuration config = new Configuration().configure(CONFIG);
-		StandardServiceRegistryBuilder ssrb = new StandardServiceRegistryBuilder();
-		ServiceRegistry serviceRegistry = ssrb.applySettings(config.getProperties()).build();
-		sessionFactory = config.buildSessionFactory(serviceRegistry);
+		this.sessionFactory = sessionFactory;
 	}
 	
 	public void create(BoxModel box)
@@ -163,6 +156,15 @@ public class BoxDatabase
 		return item;
 	}
 	
+	public void deleteItem(ItemModel item)
+	{
+		session = sessionFactory.openSession();
+		transaction = session.beginTransaction();
+		session.delete(item);
+		transaction.commit();
+		session.close();
+	}
+	
 	public ItemModel findItem(int id) throws NullItemException
 	{
 		ItemModel item = new ItemModel();
@@ -225,6 +227,12 @@ public class BoxDatabase
 		transaction = session.beginTransaction();
 		session.delete(itemBox);
 		transaction.commit();
+		session.close();
+	}
+	
+
+	public void disconnect()
+	{
 		session.close();
 	}
 	

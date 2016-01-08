@@ -1,24 +1,20 @@
 package spring.controller;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
-import exceptions.NullBoxException;
 import exceptions.PageNotFoundException;
 import exceptions.SameLocationException;
 import exceptions.WarehouseLogisticsException;
@@ -30,7 +26,6 @@ import model.ItemModel;
 import model.WaybillModel;
 import service.AccountService;
 import service.BoxService;
-import service.database.BoxDatabase;
 import service.database.WaybillDatabase;
 import viewmodel.BoxToBoxModel;
 import viewmodel.BoxToLocationModel;
@@ -48,18 +43,26 @@ public class LogisticsController extends SpringController
 	{
 		super("logisticsErrorPage");
 	}
+	
+	@ModelAttribute("BeforeDo")
+	public void beforeDo(HttpSession httpSession)
+	{
+		System.out.println("Box Controller Before Do");
+		setupHibernateConfig(httpSession);
+		System.out.println("Box Controller Before Do Done");
+	}
 
 	@RequestMapping(value = "/{method}", method = RequestMethod.GET)
 	public ModelAndView logistics(@PathVariable("method") String method) throws Exception
 	{
-		AccountModel account = new AccountService().sessionCheck(httpSession);
+		AccountModel account = new AccountService(sessionFactory).sessionCheck(httpSession);
 		String page;
 		try { page = (String)context.getBean(method + "Page"); }
 		catch (Exception exception){ throw new PageNotFoundException(); }
 		ModelAndView view = new ModelAndView(page);
 		if (method.equals("itemToLocation"))
 			return view;
-		BoxService boxService = new BoxService(account.getId());
+		BoxService boxService = new BoxService(account.getId(), sessionFactory);
 		List<BoxModel> boxList = boxService.getUseableBoxList();
 		List<ItemModel> itemList = boxService.getItemList();
 		view.addObject("BoxList", boxList);
@@ -70,8 +73,8 @@ public class LogisticsController extends SpringController
 	@RequestMapping(value = "/boxToBox/{boxId}/{itemId}", method = RequestMethod.GET)
 	public ModelAndView boxToBoxWithId(@PathVariable("boxId") int boxId, @PathVariable("itemId") int itemId) throws Exception
 	{
-		AccountModel account = new AccountService().sessionCheck(httpSession);
-		BoxService boxService = new BoxService(account.getId());
+		AccountModel account = new AccountService(sessionFactory).sessionCheck(httpSession);
+		BoxService boxService = new BoxService(account.getId(), sessionFactory);
 		BoxModel box = boxService.getBox(boxId);
 		ItemModel item = boxService.findItem(itemId);
 		ItemBoxModel itemBox = boxService.findItemBox(box.getId(), item.getId());
@@ -88,8 +91,8 @@ public class LogisticsController extends SpringController
 	@RequestMapping(value = "/boxToLocation/{boxId}/{itemId}", method = RequestMethod.GET)
 	public ModelAndView boxToLocationWithId(@PathVariable("boxId") int boxId, @PathVariable("itemId") int itemId) throws Exception
 	{
-		AccountModel account = new AccountService().sessionCheck(httpSession);
-		BoxService boxService = new BoxService(account.getId());
+		AccountModel account = new AccountService(sessionFactory).sessionCheck(httpSession);
+		BoxService boxService = new BoxService(account.getId(), sessionFactory);
 		BoxModel box = boxService.getBox(boxId);
 		ItemModel item = boxService.findItem(itemId);
 		ItemBoxModel itemBox = boxService.findItemBox(box.getId(), item.getId());
@@ -106,8 +109,8 @@ public class LogisticsController extends SpringController
 	{
 		if (bindingResult.hasErrors())
 			return new ModelAndView(errorPage, ERROR_MODEL, bindingResult.getFieldErrors());
-		AccountModel account = new AccountService().sessionCheck(httpSession);
-		BoxService boxService = new BoxService(account.getId());
+		AccountModel account = new AccountService(sessionFactory).sessionCheck(httpSession);
+		BoxService boxService = new BoxService(account.getId(), sessionFactory);
 		BoxModel boxFrom = boxService.getBox(model.getFromBoxId());
 		BoxModel boxTo = boxService.getBox(model.getToBoxId());
 		ItemModel item = boxService.findItemByName(model.getItem());
@@ -115,7 +118,7 @@ public class LogisticsController extends SpringController
 			throw new SameLocationException();
 		boxService.deliverBoxToBox(model, item);
 		
-		WaybillDatabase waybillDatabase = new WaybillDatabase();
+		WaybillDatabase waybillDatabase = new WaybillDatabase(sessionFactory);
 		WaybillModel waybill = new WaybillModel();
 		waybill.setAccountId(account.getId());
 		waybill.setContents(item.getName() + " x " + model.getAmount());
@@ -134,13 +137,13 @@ public class LogisticsController extends SpringController
 	{
 		if (bindingResult.hasErrors())
 			return new ModelAndView(errorPage, ERROR_MODEL, bindingResult.getFieldErrors());
-		AccountModel account = new AccountService().sessionCheck(httpSession);
-		BoxService boxService = new BoxService(account.getId());
+		AccountModel account = new AccountService(sessionFactory).sessionCheck(httpSession);
+		BoxService boxService = new BoxService(account.getId(), sessionFactory);
 		boxService.deliverBoxToLocation(model.getFromBoxId(), model);
 		BoxModel boxFrom = boxService.getBox(model.getFromBoxId());
 		ItemModel item = boxService.findItemByName(model.getItem());
 			
-		WaybillDatabase waybillDatabase = new WaybillDatabase();
+		WaybillDatabase waybillDatabase = new WaybillDatabase(sessionFactory);
 		WaybillModel waybill = new WaybillModel();
 		waybill.setAccountId(account.getId());
 		waybill.setContents(item.getName() + " x " + model.getAmount());
@@ -159,13 +162,13 @@ public class LogisticsController extends SpringController
 	{
 		if (bindingResult.hasErrors())
 			return new ModelAndView(errorPage, ERROR_MODEL, bindingResult.getFieldErrors());
-		AccountModel account = new AccountService().sessionCheck(httpSession);
-		BoxService boxService = new BoxService(account.getId());
+		AccountModel account = new AccountService(sessionFactory).sessionCheck(httpSession);
+		BoxService boxService = new BoxService(account.getId(), sessionFactory);
 		boxService.deliverItemToBox(model.getToBoxId(), model);
 		BoxModel boxTo = boxService.getBox(model.getToBoxId());
 		ItemModel item = boxService.findItemByName(model.getItem());
 		
-		WaybillDatabase waybillDatabase = new WaybillDatabase();
+		WaybillDatabase waybillDatabase = new WaybillDatabase(sessionFactory);
 		WaybillModel waybill = new WaybillModel();
 		waybill.setAccountId(account.getId());
 		waybill.setContents(item.getName() + " x " + model.getAmount());
@@ -184,9 +187,9 @@ public class LogisticsController extends SpringController
 	{
 		if (bindingResult.hasErrors())
 			return new ModelAndView(errorPage, ERROR_MODEL, bindingResult.getFieldErrors());
-		AccountModel account = new AccountService().sessionCheck(httpSession);
+		AccountModel account = new AccountService(sessionFactory).sessionCheck(httpSession);
 		
-		WaybillDatabase waybillDatabase = new WaybillDatabase();
+		WaybillDatabase waybillDatabase = new WaybillDatabase(sessionFactory);
 		WaybillModel waybill = new WaybillModel();
 		waybill.setAccountId(account.getId());
 		waybill.setContents(model.getContents());
@@ -203,8 +206,8 @@ public class LogisticsController extends SpringController
 	@RequestMapping(method = RequestMethod.GET)
 	public ModelAndView getWaybillListPage() throws Exception
 	{
-		AccountModel account = new AccountService().sessionCheck(httpSession);
-		WaybillDatabase waybillDatabase = new WaybillDatabase();
+		AccountModel account = new AccountService(sessionFactory).sessionCheck(httpSession);
+		WaybillDatabase waybillDatabase = new WaybillDatabase(sessionFactory);
 		List<WaybillModel> list;
 		list = waybillDatabase.listByAccount(account.getId());
 		String page = (String)context.getBean("waybillListPage");
@@ -215,8 +218,8 @@ public class LogisticsController extends SpringController
 	@RequestMapping(value = "/delete/{id}", method = RequestMethod.POST)
 	public ModelAndView deleteWaybill(@PathVariable("id") int id) throws Exception
 	{
-		AccountModel account = new AccountService().sessionCheck(httpSession);
-		WaybillDatabase waybillDatabase = new WaybillDatabase();
+		AccountModel account = new AccountService(sessionFactory).sessionCheck(httpSession);
+		WaybillDatabase waybillDatabase = new WaybillDatabase(sessionFactory);
 		WaybillModel waybill;
 		waybill = waybillDatabase.find(id);
 		if (waybill.getAccountId() != account.getId())

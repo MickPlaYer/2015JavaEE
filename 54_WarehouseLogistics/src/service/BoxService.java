@@ -5,6 +5,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.hibernate.SessionFactory;
+import org.hibernate.exception.ConstraintViolationException;
+
 import converter.MD5Converter;
 import service.database.BoxDatabase;
 import viewmodel.ModifyItemModel;
@@ -32,9 +35,9 @@ public class BoxService
 	private BoxDatabase boxDatabase;
 	private int accountId;
 
-	public BoxService(int accountId) throws Exception
+	public BoxService(int accountId, SessionFactory sessionFactory) throws Exception
 	{
-		boxDatabase = new BoxDatabase();
+		boxDatabase = new BoxDatabase(sessionFactory);
 		this.accountId = accountId;
 	}
 	
@@ -145,7 +148,11 @@ public class BoxService
 		ItemBoxModel itemBox = boxDatabase.findItemBox(box.getId(), item.getId());
 		itemBox.addAmount(-model.getAmount());
 		if (itemBox.getAmount() == 0)
+		{
 			boxDatabase.deleteItemBox(itemBox);
+			try	{ boxDatabase.deleteItem(item);	}
+			catch (ConstraintViolationException exception) { boxDatabase.disconnect(); }
+		}
 		else if (itemBox.getAmount() > 0)
 			boxDatabase.updateItemBox(itemBox);
 		else if (itemBox.getAmount() < 0)
@@ -238,10 +245,8 @@ public class BoxService
 
 	public void deliverItemToBox(int boxId, ItemToBoxModel model) throws Exception
 	{
-		System.out.println(model.getAmount());
 		ModifyItemModel addItemModel = new ModifyItemModel();
 		addItemModel.setAmount(model.getAmount());
-		System.out.println(addItemModel.getAmount());
 		addItemModel.setName(model.getItem());
 		addItemToBox(boxId, addItemModel);
 	}
