@@ -24,7 +24,13 @@
 		<button onclick="window.location.href='/54_WarehouseLogistics/spring/main/logistics'">我要送貨</button><br>
 		<button onclick="window.location.href='/54_WarehouseLogistics/spring/logistics'">我的運貨單列表</button><br><br>
 		
-		<a href="/54_WarehouseLogistics/">登出</a>
+		<a href="/54_WarehouseLogistics/">登出</a><br><br>
+	</div>
+	<div style="position:fixed;bottom:0px;width:100%;">
+		<div style="text-align:center;">
+				<p class="message">廣告由50多媒體廣告提供</p>
+					${AdBlock}
+		</div>
 	</div>
 </body>
 

@@ -11,14 +11,22 @@
 	<bean id="bankToken" class="java.lang.String">
 		<constructor-arg type="String" value="381AC92740785E6B2A0DB48304AE669A"/>
 	</bean>
+	
+	<bean id="adToken" class="java.lang.String">
+		<constructor-arg type="String" value="685197c4c1660a462d5664edec8a2a37"/>
+	</bean>
 
 	<bean id="warehouseURL" class="java.lang.String">
-		<!-- <constructor-arg type="String" value="http://ilab.csie.ntut.edu.tw:8080/54_WarehouseLogistics/spring/box"/> -->
-		<constructor-arg type="String" value="http://localhost:8081/54_WarehouseLogistics/spring/box"/>
+		<constructor-arg type="String" value="http://ilab.csie.ntut.edu.tw:8080/54_WarehouseLogistics/spring/box"/>
+		<!-- <constructor-arg type="String" value="http://localhost:8081/54_WarehouseLogistics/spring/box"/> -->
 	</bean>
 	
 	<bean id="bankURL" class="java.lang.String">
 		<constructor-arg type="String" value="http://ilab.csie.ntut.edu.tw:8080/final_53/spring/bank"/>
+	</bean>
+	
+	<bean id="adURL" class="java.lang.String">
+		<constructor-arg type="String" value="http://ilab.csie.ntut.edu.tw:8080/50_finalProject/spring/webservice/ad"/>
 	</bean>
 
 	<bean id="registerPage" class="java.lang.String">

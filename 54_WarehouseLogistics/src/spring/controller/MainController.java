@@ -50,8 +50,14 @@ public class MainController extends SpringController
 		String name = (String)httpSession.getAttribute("name");
 		if (name == null)
 			throw new SessionFailException();
+		
+		RestTemplate restTemplate = new RestTemplate();
+		String bankeURL = (String)context.getBean("adURL") + "/getAD?token=" + (String)context.getBean("adToken");
+		String adBlock = restTemplate.getForObject(bankeURL, String.class);
 		String page = (String)context.getBean("mainPage");
-		return new ModelAndView(page, "Name", name);
+		ModelAndView view = new ModelAndView(page, "Name", name);
+		view.addObject("AdBlock", adBlock);
+		return view;
 	}
 	
 	@RequestMapping(value = "/myAccount", method = RequestMethod.GET)
