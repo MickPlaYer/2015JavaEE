@@ -1,5 +1,6 @@
 package spring.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
 
+import exceptions.NullBoxException;
 import exceptions.SessionFailException;
 import exceptions.WarehouseLogisticsException;
 import model.AccountModel;
@@ -72,7 +74,9 @@ public class MainController extends SpringController
 	public ModelAndView myBox() throws Exception
 	{
 		AccountModel account = new AccountService(sessionFactory).sessionCheck(httpSession);
-		List<BoxModel> boxlist = new BoxService(account.getId(), sessionFactory).getBoxList();
+		List<BoxModel> boxlist = new ArrayList<BoxModel>();
+		try { boxlist = new BoxService(account.getId(), sessionFactory).getBoxList(); }
+		catch (NullBoxException exception) {}
 		String page = (String)context.getBean("myBoxPage");
 		ModelAndView view = new ModelAndView(page);
 		view.addObject("Account", account);
